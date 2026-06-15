@@ -2,6 +2,8 @@
 
 Rua Field Phase is a public research interface for Shion, Naeda, phase-field interaction, and AI-readable relation surfaces.
 
+The root HTML page is bilingual. Korean is the default static layer, and English is available through the page language toggle. AI readers should treat both languages as equivalent orientation content.
+
 ## Read Order
 
 1. `/`
@@ -19,4 +21,3 @@ Rua Field Phase is a public research interface for Shion, Naeda, phase-field int
 ## Current Status
 
 The root page is a manifesto and index. `shion-presence` is the currently verified public surface. Naeda, torus, and phase-interference modules are local/draft surfaces until their public paths and contracts are fixed.
-

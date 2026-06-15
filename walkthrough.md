@@ -10,6 +10,7 @@ The visual direction was kept, but the public claims were tightened.
 - Added metadata, JSON-LD, `AI_READ_FIRST.md`, `llms.txt`, `robots.txt`, and `sitemap.xml`.
 - Fixed an invalid navigation background CSS expression.
 - Added focus-visible and reduced-motion support.
+- Added a Korean/English language toggle on the root page.
 
 ## Current Public Role
 
@@ -35,4 +36,4 @@ Before pushing to `ruafieldphase.github.io`:
 2. Confirm the root GitHub Pages repository exists.
 3. Push `index.html`, `AI_READ_FIRST.md`, `llms.txt`, `robots.txt`, and `sitemap.xml`.
 4. Open `https://ruafieldphase.github.io/` and verify the site is no longer 404.
-
+5. Use the `EN/KR` toggle and confirm the language switch updates the visible copy.

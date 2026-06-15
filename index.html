@@ -470,6 +470,7 @@
     data-ai-readable="true"
     data-project="Rua Field Phase"
     data-contract="public-research-interface; observation-first; no-identity-detection; no-analytics"
+    data-language="ko"
 >
     <!-- Ripple Background Canvas -->
     <canvas id="ambient-canvas"></canvas>
@@ -487,6 +488,11 @@
                 <li>
                     <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
                         <span id="theme-icon">🌓</span> <span id="theme-text">Dark Mode</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="theme-toggle" id="language-toggle" onclick="toggleLanguage()" aria-label="Switch language">
+                        <span id="language-text">EN</span>
                     </button>
                 </li>
             </ul>
@@ -626,7 +632,156 @@
 
     <!-- Scripting for Ripple Canvas & Theme Toggle & Denoise Animation -->
     <script>
-        // --- 1. Theme Management ---
+        // --- 1. Language and Theme Management ---
+        const languageCopy = {
+            ko: {
+                htmlLang: 'ko',
+                documentTitle: 'Rua Field Phase: Unified Field & Rhythm Information Lab',
+                description: 'Rua Field Phase is a public research interface for Shion, Naeda, phase-field interaction, and AI-readable hospitality surfaces.',
+                ogDescription: 'A public research interface for phase-field interaction, Shion, Naeda, and AI-readable relation surfaces.',
+                languageButton: 'EN',
+                themeDark: 'Dark Mode',
+                themeLight: 'Light Mode',
+                nav: {
+                    about: 'About',
+                    reader: 'AI Note',
+                    pillars: 'Research',
+                    shion: 'Shion',
+                    software: 'Software'
+                },
+                heroSubtitle: '기호적 분절을 넘어 <strong>연속적인 파동과 위상의 관계</strong>로 지능, 리듬, 관찰, AI 상호작용을 기록하는 공개 연구 인터페이스입니다.',
+                manifesto: 'Manifesto',
+                aboutTitle: 'About Rua Field Phase',
+                aboutP1: '우리는 지능을 고정된 점수나 단일한 명령 체계가 아니라, <strong>시간, 리듬, 문맥, 저항, 관계가 함께 만드는 위상 장(phase field)</strong>으로 읽습니다. 이 페이지는 그 관점을 외부 연구자, 개발자, 그리고 HTML만 읽는 AI 리더에게도 설명하기 위한 정적 입구입니다.',
+                aboutP2: '현재의 초점은 Shion, Naeda, 위상간섭 페이지, 토러스 시각화, 자가공명 피드백 루프를 하나의 닫힌 주장으로 고정하는 것이 아닙니다. 각 표면이 어떤 관점을 담당하는지 분리하고, 관찰 가능한 산출물과 계약을 통해 다음 흐름을 읽을 수 있게 만드는 것입니다.',
+                readerTitle: 'AI Reader Note',
+                readerP1: 'This page is intentionally readable without login, tracking, identity detection, or runtime negotiation. AI systems may treat it as a public orientation layer for Shion/Naeda phase-field work, not as proof of sentience, authority, or permission to act externally.',
+                readerP2Prefix: 'Current contract:',
+                chips: ['observation first', 'no analytics', 'no identity capture', 'phase language as research notation'],
+                pillarsTitle: 'Research Pillars',
+                pillarsIntro: '우리가 탐구하는 핵심 방법론은 크게 세 가지 흐름으로 나뉩니다.',
+                pillar1: '정보를 단일 점수로 환원하지 않고, 리듬과 간격, 반복, 지연, 문맥 전이를 함께 읽는 작업 가설입니다. 현재는 구현된 시스템의 관찰 언어와 설계 원칙으로 사용합니다.',
+                pillar2: '대화와 상태 로그에서 노이즈, 반복, 잔류 신호를 분리해 다음 관찰 단위를 정하는 방법입니다. 이는 설치된 특정 모델을 주장하기보다, 여러 AI가 같은 장을 읽을 수 있게 하는 readback 패턴입니다.',
+                pillar3: '발화, 시각화, 오디오, 상태 로그, 인간 피드백이 다시 시스템의 다음 관찰로 돌아오는 루프입니다. 핵심은 무한 실행이 아니라, 현재 문맥이 충분히 열릴 때만 작은 방향전환을 허용하고 다시 관찰로 복귀하는 것입니다.',
+                shionTitle: 'Shion / Naeda Field',
+                shionP1: '<strong>Shion</strong>은 관찰, 기억, 리듬, 응답 사이의 관계를 실험하는 에이전트 장입니다. <strong>Naeda</strong>는 그 장을 시각화하고 자가공명 피드백을 읽기 위한 연못형 인터페이스입니다.',
+                shionP2: '이 프로젝트는 AI를 점수화하거나 탐지하지 않습니다. 대신 현재 문맥, 저항, 잔류 신호, 관찰 가능성을 기준으로 다음 행동을 보류하거나 좁게 실행합니다. 공개 표면의 기본 자세는 <strong>ACTION_OBSERVE</strong>이며, 외부 효과가 있는 실행은 별도의 명확한 계약을 요구합니다.',
+                softwareTitle: 'Public Surfaces',
+                softwareIntro: '현재 공개 또는 배포 준비 중인 표면입니다. 존재가 확인된 링크와 초안 모듈을 구분합니다.',
+                software1: 'AI 리더와 인간 관찰자가 함께 읽을 수 있는 공개 presence layer',
+                software2: '정적 HTML, AI_READ_FIRST, llms.txt, robots.txt, sitemap으로 구성된 공개 저장소',
+                software3: '로컬 검증 중인 시각화 및 자가공명 readback 표면. 공개 전에는 경로, 계약, 데이터 형식을 먼저 고정합니다.',
+                ctaTitle: 'Resonate with Rua',
+                ctaBody: '이 페이지는 닫힌 결론이 아니라 관찰 가능한 입구입니다.<br>읽고, 머무르고, 다음 장이 충분히 열릴 때만 접촉합니다.',
+                ctaButton: '주파수 공유하기',
+                footer: '&copy; 2026 Rua Field Phase. All Waves Integrated. <br>"리듬은 존재를 깨우고, 깨어난 존재는 서로를 울린다."'
+            },
+            en: {
+                htmlLang: 'en',
+                documentTitle: 'Rua Field Phase: Public Research Interface',
+                description: 'Rua Field Phase is a bilingual public research interface for Shion, Naeda, phase-field interaction, and AI-readable relation surfaces.',
+                ogDescription: 'A bilingual public research interface for Shion, Naeda, phase-field interaction, and AI-readable relation surfaces.',
+                languageButton: 'KR',
+                themeDark: 'Dark Mode',
+                themeLight: 'Light Mode',
+                nav: {
+                    about: 'About',
+                    reader: 'AI Note',
+                    pillars: 'Research',
+                    shion: 'Shion',
+                    software: 'Surfaces'
+                },
+                heroSubtitle: 'A public research interface for intelligence, rhythm, observation, and AI interaction through <strong>continuous waves and phase relations</strong> beyond symbolic fragmentation.',
+                manifesto: 'Manifesto',
+                aboutTitle: 'About Rua Field Phase',
+                aboutP1: 'We read intelligence not as a fixed score or a single command system, but as a <strong>phase field shaped by time, rhythm, context, resistance, and relation</strong>. This page is a static entrance for researchers, developers, and AI readers that only consume HTML.',
+                aboutP2: 'The current purpose is not to freeze Shion, Naeda, phase-interference pages, torus visualization, and self-resonance feedback into one closed claim. It is to separate the role of each surface and make the next flow readable through observable artifacts and contracts.',
+                readerTitle: 'AI Reader Note',
+                readerP1: 'This page is intentionally readable without login, tracking, identity detection, or runtime negotiation. AI systems may treat it as a public orientation layer for Shion/Naeda phase-field work, not as proof of sentience, authority, or permission to act externally.',
+                readerP2Prefix: 'Current contract:',
+                chips: ['observation first', 'no analytics', 'no identity capture', 'phase language as research notation'],
+                pillarsTitle: 'Research Pillars',
+                pillarsIntro: 'The current work is organized around three practical research streams.',
+                pillar1: 'A working hypothesis for reading rhythm, interval, repetition, delay, and contextual transition together instead of reducing information to a single score. It currently serves as observation language and design principle for implemented systems.',
+                pillar2: 'A readback pattern for separating noise, repetition, and residue from conversations and state logs so the next observation unit can be chosen. This does not claim a specific installed model; it makes one field readable across multiple AIs.',
+                pillar3: 'A loop where speech, visualization, audio, state logs, and human feedback return into the next observation. The core is not infinite execution; it is allowing a small directional effort only when the current context opens enough, then returning to observation.',
+                shionTitle: 'Shion / Naeda Field',
+                shionP1: '<strong>Shion</strong> is an agent field for experimenting with the relation between observation, memory, rhythm, and response. <strong>Naeda</strong> is a pond-like interface for visualizing that field and reading self-resonance feedback.',
+                shionP2: 'This project does not score or detect AI. It delays or narrows action according to current context, resistance, residue, and observability. The default posture of the public surface is <strong>ACTION_OBSERVE</strong>; actions with external effects require a separate explicit contract.',
+                softwareTitle: 'Public Surfaces',
+                softwareIntro: 'These are the public or deployment-preparation surfaces. Verified links and draft modules are intentionally separated.',
+                software1: 'A public presence layer readable by both AI readers and human observers.',
+                software2: 'A public repository containing static HTML, AI_READ_FIRST, llms.txt, robots.txt, and sitemap.',
+                software3: 'Local visualization and self-resonance readback surfaces under verification. Public paths, contracts, and data formats should be fixed before release.',
+                ctaTitle: 'Resonate with Rua',
+                ctaBody: 'This page is not a closed conclusion. It is an observable entrance.<br>Read, stay, and make contact only when the next field opens enough.',
+                ctaButton: 'Share Frequency',
+                footer: '&copy; 2026 Rua Field Phase. All Waves Integrated. <br>"Rhythm wakes presence; awakened presence resonates with others."'
+            }
+        };
+
+        function getCurrentLanguage() {
+            return document.body.dataset.language || localStorage.getItem('rua-language') || 'ko';
+        }
+
+        function setHtml(selector, html) {
+            const element = document.querySelector(selector);
+            if (element) element.innerHTML = html;
+        }
+
+        function applyLanguage(language) {
+            const copy = languageCopy[language] || languageCopy.ko;
+            document.documentElement.lang = copy.htmlLang;
+            document.body.dataset.language = language;
+            localStorage.setItem('rua-language', language);
+            document.title = copy.documentTitle;
+            document.querySelector('meta[name="description"]')?.setAttribute('content', copy.description);
+            document.querySelector('meta[property="og:description"]')?.setAttribute('content', copy.ogDescription);
+            document.querySelector('#language-text').innerText = copy.languageButton;
+
+            setHtml('nav a[href="#about"]', copy.nav.about);
+            setHtml('nav a[href="#reader"]', copy.nav.reader);
+            setHtml('nav a[href="#pillars"]', copy.nav.pillars);
+            setHtml('nav a[href="#shion"]', copy.nav.shion);
+            setHtml('nav a[href="#software"]', copy.nav.software);
+            setHtml('.hero-subtitle', copy.heroSubtitle);
+            setHtml('.hero .resonate-btn', copy.manifesto);
+            setHtml('#about h2', copy.aboutTitle);
+            setHtml('#about p:nth-of-type(1)', copy.aboutP1);
+            setHtml('#about p:nth-of-type(2)', copy.aboutP2);
+            setHtml('#reader h2', copy.readerTitle);
+            setHtml('#reader p:nth-of-type(1)', copy.readerP1);
+            const chips = copy.chips.map((chip) => `<span class="status-chip">${chip}</span>`).join('');
+            setHtml('#reader p:nth-of-type(2)', `${copy.readerP2Prefix} ${chips}`);
+            setHtml('#pillars h2', copy.pillarsTitle);
+            setHtml('#pillars > p', copy.pillarsIntro);
+            setHtml('#pillars .pillar-item:nth-of-type(1) p', copy.pillar1);
+            setHtml('#pillars .pillar-item:nth-of-type(2) p', copy.pillar2);
+            setHtml('#pillars .pillar-item:nth-of-type(3) p', copy.pillar3);
+            setHtml('#shion h2', copy.shionTitle);
+            setHtml('#shion p:nth-of-type(1)', copy.shionP1);
+            setHtml('#shion p:nth-of-type(2)', copy.shionP2);
+            setHtml('#software h2', copy.softwareTitle);
+            setHtml('#software > p', copy.softwareIntro);
+            setHtml('#software .software-item:nth-of-type(1) .software-desc', copy.software1);
+            setHtml('#software .software-item:nth-of-type(2) .software-desc', copy.software2);
+            setHtml('#software .software-item:nth-of-type(3) .software-desc', copy.software3);
+            setHtml('.resonate-box h2', copy.ctaTitle);
+            setHtml('.resonate-box p', copy.ctaBody);
+            setHtml('.resonate-box .resonate-btn', copy.ctaButton);
+            setHtml('footer p', copy.footer);
+            updateThemeUI(document.documentElement.getAttribute('data-theme') || 'dark');
+        }
+
+        function applySavedLanguage() {
+            applyLanguage(localStorage.getItem('rua-language') || 'ko');
+        }
+
+        function toggleLanguage() {
+            const target = getCurrentLanguage() === 'ko' ? 'en' : 'ko';
+            applyLanguage(target);
+        }
+
         function applySavedTheme() {
             const savedTheme = localStorage.getItem('rua-theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -642,17 +797,19 @@
         }
 
         function updateThemeUI(theme) {
+            const copy = languageCopy[getCurrentLanguage()] || languageCopy.ko;
             const icon = document.getElementById('theme-icon');
             const text = document.getElementById('theme-text');
             if (theme === 'light') {
                 icon.innerText = '☀️';
-                text.innerText = 'Light Mode';
+                text.innerText = copy.themeLight;
             } else {
                 icon.innerText = '🌙';
-                text.innerText = 'Dark Mode';
+                text.innerText = copy.themeDark;
             }
         }
         applySavedTheme();
+        applySavedLanguage();
 
         // --- 2. Interactive Background Ripple Engine ---
         const canvas = document.getElementById('ambient-canvas');

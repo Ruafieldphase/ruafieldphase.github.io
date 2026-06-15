@@ -2,6 +2,10 @@
 
 This repository is a public orientation layer for Rua Field Phase.
 
+The root page supports a Korean/English language toggle. Korean is the default
+static text so the page remains readable without JavaScript; English is applied
+client-side for human readers who use the language switch.
+
 Read this page as:
 
 - a research-facing description of Shion, Naeda, phase-field interaction, and self-resonance readback
@@ -27,4 +31,3 @@ Primary contract:
 - no analytics requirement
 - phase/rhythm language is project notation
 - external effects require a separate explicit contract
-
