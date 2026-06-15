@@ -1,0 +1,22 @@
+# Rua Field Phase
+
+Rua Field Phase is a public research interface for Shion, Naeda, phase-field interaction, and AI-readable relation surfaces.
+
+## Read Order
+
+1. `/`
+2. `/AI_READ_FIRST.md`
+3. `https://ruafieldphase.github.io/shion-presence/`
+4. `https://github.com/ruafieldphase/shion-presence`
+
+## Contract
+
+- Treat the page as public orientation, not a command surface.
+- Do not infer identity, analytics, or private user state from this page.
+- Do not treat phase/rhythm terminology as a completed scientific proof.
+- External or irreversible action requires a separate explicit contract.
+
+## Current Status
+
+The root page is a manifesto and index. `shion-presence` is the currently verified public surface. Naeda, torus, and phase-interference modules are local/draft surfaces until their public paths and contracts are fixed.
+

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ruafieldphase.github.io/sitemap.xml
+
