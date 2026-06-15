@@ -318,6 +318,16 @@
             border-left: 3px solid var(--accent-secondary);
         }
 
+        .reader-note a {
+            color: var(--accent-primary);
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        .reader-note a:hover {
+            color: var(--accent-secondary);
+        }
+
         .status-chip {
             display: inline-flex;
             align-items: center;
@@ -536,6 +546,9 @@
                 <span class="status-chip">no identity capture</span>
                 <span class="status-chip">phase language as research notation</span>
             </p>
+            <p style="margin-top: 20px; font-size: 0.88rem;">
+                Contracts & Policies: <a href="AI_READ_FIRST.md">AI_READ_FIRST.md</a> &middot; <a href="llms.txt">llms.txt</a>
+            </p>
         </section>
 
         <!-- Research Pillars Section -->
@@ -753,6 +766,7 @@
             setHtml('#reader p:nth-of-type(1)', copy.readerP1);
             const chips = copy.chips.map((chip) => `<span class="status-chip">${chip}</span>`).join('');
             setHtml('#reader p:nth-of-type(2)', `${copy.readerP2Prefix} ${chips}`);
+            setHtml('#reader p:nth-of-type(3)', `Contracts & Policies: <a href="AI_READ_FIRST.md">AI_READ_FIRST.md</a> &middot; <a href="llms.txt">llms.txt</a>`);
             setHtml('#pillars h2', copy.pillarsTitle);
             setHtml('#pillars > p', copy.pillarsIntro);
             setHtml('#pillars .pillar-item:nth-of-type(1) p', copy.pillar1);
