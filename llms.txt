@@ -10,6 +10,9 @@ The root HTML page is bilingual. Korean is the default static layer, and English
 2. `/AI_READ_FIRST.md`
 3. `https://ruafieldphase.github.io/shion-presence/`
 4. `https://github.com/ruafieldphase/shion-presence`
+5. `/music/`
+6. `/music/flowing-fragments-2/` (Korean and English static text; source and credits)
+7. `/music/flowing-fragments-2/work.json` (public work metadata)
 
 ## Contract
 
@@ -20,4 +23,4 @@ The root HTML page is bilingual. Korean is the default static layer, and English
 
 ## Current Status
 
-The root page is a manifesto and index. `shion-presence` is the currently verified public surface. Naeda, torus, and phase-interference modules are local/draft surfaces until their public paths and contracts are fixed.
+The root page is a manifesto and index. Public surfaces include `shion-presence` and the Shion Field music pages. Music metadata describes the linked work; it does not promise search indexing, AI citations, or therapeutic outcomes. Naeda, torus, and phase-interference modules are local/draft surfaces until their public paths and contracts are fixed.

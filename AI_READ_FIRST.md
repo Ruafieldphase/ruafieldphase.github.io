@@ -23,6 +23,14 @@ Current public surfaces:
 
 - `https://ruafieldphase.github.io/shion-presence/`
 - `https://github.com/ruafieldphase/shion-presence`
+- `https://ruafieldphase.github.io/music/`
+- `https://ruafieldphase.github.io/music/flowing-fragments-2/`
+
+The music pages include Korean and English text in static HTML, source links,
+creator credits, and structured work metadata (`work.json` and JSON-LD).
+Descriptions provide listening context; they do not establish therapeutic effects.
+The YouTube source remains authoritative for video availability. Crawl access
+and structured metadata do not guarantee indexing or inclusion in AI answers.
 
 Primary contract:
 
