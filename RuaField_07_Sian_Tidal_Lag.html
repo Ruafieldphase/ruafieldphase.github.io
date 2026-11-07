@@ -1,0 +1,1370 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#030812">
+<meta name="description" content="Tidal Lag — An original WebGL2 ocean-vortex and phase-beating acoustic study by Sian (시안).">
+<title>조류의 시차 — 물결 위에서, 위에서 · 시안 (Sian)</title>
+<style>
+:root{
+  color-scheme:dark;
+  --abyss:#030812;
+  --ink:#e4ecf5;
+  --muted:#8aa0b8;
+  --gold:#f2c98a;
+  --cyan:#7ad7f0;
+  --line:rgba(148,182,214,.18);
+  --glass:rgba(6,15,28,.72);
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  min-height:470px;
+  overflow:hidden;
+  background:var(--abyss);
+  color:var(--ink);
+}
+body{
+  font-family:'Pretendard','Noto Sans CJK KR','Malgun Gothic',sans-serif;
+  font-weight:300;
+  letter-spacing:.02em;
+}
+button,input{font:inherit}
+button{
+  border:0;
+  background:transparent;
+  color:inherit;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:all .28s ease;
+}
+button:hover{color:#fff}
+button:focus-visible,summary:focus-visible,canvas:focus-visible{
+  outline:1px solid var(--gold);
+  outline-offset:4px;
+}
+[hidden]{display:none!important}
+
+#ocean{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  touch-action:none;
+}
+
+/* Sian's own minimal horizon-compass header */
+.top-bar{
+  position:fixed;
+  top:22px;
+  left:4.2vw;
+  right:4.2vw;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:5;
+  font-size:10.5px;
+  letter-spacing:.12em;
+  color:var(--muted);
+  transition:opacity .7s ease;
+}
+.sig{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  font-family:Georgia,serif;
+}
+.compass-ring{
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  border:1px solid rgba(122,215,240,.55);
+  position:relative;
+  display:inline-block;
+}
+.compass-ring::after{
+  content:'';
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:4px;
+  height:4px;
+  margin:-2px 0 0 -2px;
+  border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 8px var(--gold);
+}
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+.top-actions button{
+  padding:6px 2px;
+  font-size:10.5px;
+  letter-spacing:.06em;
+  color:var(--muted);
+}
+.top-actions button:hover,
+.top-actions button[aria-pressed="true"]{
+  color:var(--gold);
+}
+.lang-switch{
+  display:flex;
+  gap:8px;
+  border-left:1px solid var(--line);
+  padding-left:14px;
+}
+.lang-switch button[aria-pressed="true"]{
+  color:var(--ink);
+}
+
+/* Poetic Whisper Overlay — top-right/center-left floating, unobtrusive */
+.poem-wrap{
+  position:fixed;
+  left:4.6vw;
+  top:14.5%;
+  z-index:3;
+  pointer-events:none;
+  max-width:390px;
+  transition:opacity .8s ease, transform .8s ease;
+}
+.poem-sub{
+  font:italic 11px Georgia,serif;
+  color:var(--cyan);
+  letter-spacing:.16em;
+  opacity:.82;
+  margin:0 0 10px;
+}
+.poem-title{
+  margin:0;
+  font-family:'Noto Serif CJK KR','NanumMyeongjo',Batang,Georgia,serif;
+  font-weight:300;
+  font-size:clamp(28px,3.8vw,54px);
+  line-height:1.26;
+  letter-spacing:-.045em;
+  color:#f2f6fb;
+  text-shadow:0 4px 28px rgba(2,6,14,.92);
+  white-space:pre-line;
+}
+.poem-body{
+  margin:14px 0 0;
+  font-size:clamp(11.5px,1vw,12.8px);
+  line-height:1.9;
+  color:#b6c8dc;
+  text-shadow:0 2px 18px rgba(2,6,14,.96);
+  white-space:pre-line;
+}
+body[data-lang="en"] .poem-title{
+  font-family:Georgia,serif;
+  letter-spacing:-.02em;
+}
+body[data-lang="en"] .poem-body{
+  font-family:Georgia,serif;
+  font-style:italic;
+}
+
+/* Floating glass pill dock at bottom center */
+.dock-wrap{
+  position:fixed;
+  left:50%;
+  bottom:22px;
+  transform:translateX(-50%);
+  z-index:5;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  width:max-content;
+  max-width:92vw;
+}
+#gestureHint{
+  margin:0;
+  font-size:10.5px;
+  color:#97b0c8;
+  letter-spacing:.04em;
+  text-shadow:0 2px 12px rgba(2,6,14,.95);
+  transition:opacity 1.2s ease;
+  text-align:center;
+  pointer-events:none;
+}
+#gestureHint.dim{opacity:.28}
+.dock{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:var(--glass);
+  border:1px solid var(--line);
+  backdrop-filter:blur(14px);
+  box-shadow:0 14px 44px rgba(0,0,0,.55);
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.dock button{
+  padding:7px 14px;
+  border-radius:999px;
+  font-size:11px;
+  letter-spacing:.04em;
+  color:#c5d6e8;
+}
+.dock button:hover{
+  background:rgba(122,215,240,.1);
+  color:#fff;
+}
+.dock button[aria-pressed="true"]{
+  background:rgba(242,201,138,.16);
+  color:var(--gold);
+  border:1px solid rgba(242,201,138,.35);
+}
+.dock .sep{
+  width:1px;
+  height:14px;
+  background:var(--line);
+}
+
+#soundUnlockPill{
+  position:fixed;
+  right:4.6vw;
+  bottom:82px;
+  z-index:6;
+  padding:9px 16px;
+  border-radius:999px;
+  background:rgba(12,26,46,.9);
+  border:1px solid rgba(242,201,138,.45);
+  color:var(--gold);
+  font-size:11px;
+  letter-spacing:.05em;
+  backdrop-filter:blur(10px);
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+}
+
+body.folded .poem-wrap,
+body.folded #gestureHint{
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(-6px);
+}
+
+/* Reverse Side Dialog (뒤편) */
+dialog{
+  padding:0;
+  width:min(880px,92vw);
+  max-height:86dvh;
+  background:rgba(7,15,27,.95);
+  color:var(--ink);
+  border:1px solid var(--line);
+  border-radius:14px;
+  box-shadow:0 32px 120px rgba(0,0,0,.85);
+  backdrop-filter:blur(18px);
+}
+dialog::backdrop{
+  background:rgba(2,6,13,.76);
+  backdrop-filter:blur(8px);
+}
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:16px 26px;
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  background:rgba(7,15,27,.98);
+  z-index:2;
+  font-size:11px;
+  letter-spacing:.08em;
+  color:var(--muted);
+}
+.modal-head button{
+  font-size:20px;
+  padding:2px 8px;
+  color:var(--ink);
+}
+.modal-body{
+  padding:24px 30px 34px;
+  font-size:12.2px;
+  line-height:1.95;
+}
+.modal-body h2{
+  font:300 26px/1.36 'Noto Serif CJK KR','NanumMyeongjo',Georgia,serif;
+  margin:0 0 16px;
+  color:#f4f8fc;
+}
+.modal-body h3{
+  font-size:12.5px;
+  color:var(--gold);
+  margin:22px 0 8px;
+  font-weight:400;
+}
+.modal-body p{
+  color:#b6c8dc;
+  max-width:68ch;
+  margin:10px 0;
+}
+.modal-body .note{
+  font-size:11px;
+  color:#7e96b0;
+}
+.audio-row{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin:18px 0;
+  padding:12px 0;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  font-size:11px;
+  color:#9db4cc;
+}
+.audio-row input[type="range"]{
+  width:130px;
+  accent-color:var(--gold);
+}
+.modal-body details{
+  border-top:1px solid var(--line);
+  padding-top:14px;
+  margin-top:18px;
+}
+.modal-body summary{
+  cursor:pointer;
+  color:#dce7f3;
+  font-size:12px;
+  padding:3px 0;
+}
+.equation{
+  font:11.5px/1.88 'DejaVu Sans Mono','Consolas',monospace;
+  white-space:pre-wrap;
+  color:#edd09d;
+  background:rgba(3,8,16,.85);
+  padding:14px 18px;
+  border-left:2px solid rgba(122,215,240,.45);
+  border-radius:0 8px 8px 0;
+  margin:10px 0;
+  overflow-wrap:anywhere;
+}
+pre.source{
+  max-height:260px;
+  overflow:auto;
+  white-space:pre;
+  font:10px/1.75 'DejaVu Sans Mono','Consolas',monospace;
+  background:#03070f;
+  color:#9ab2ca;
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:8px;
+}
+.dl-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:12px 0;
+}
+.dl-row button{
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:7px 13px;
+  font-size:11px;
+  color:#d7e4f2;
+}
+.dl-row button:hover{border-color:var(--gold)}
+
+@media(max-width:760px){
+  .top-bar{top:14px;left:5vw;right:5vw;font-size:9.5px}
+  .poem-wrap{left:5.5vw;top:12%;max-width:86vw}
+  .poem-title{font-size:30px}
+  .poem-body{font-size:11px;line-height:1.78}
+  .dock{padding:5px 8px;gap:4px}
+  .dock button{padding:6px 10px;font-size:10px}
+  #gestureHint{font-size:9.5px}
+}
+@media(max-height:540px){
+  .poem-wrap{top:12%}
+  .poem-title{font-size:26px}
+  .poem-body{margin-top:8px;font-size:10.8px;line-height:1.7}
+  .dock-wrap{bottom:12px;gap:6px}
+}
+</style>
+</head>
+<body data-lang="ko">
+<canvas id="ocean" tabindex="0" role="img" aria-label="밤바다의 볼류메트릭 윤슬 파도와 앵무조개 소용돌이, 물살 자국을 그리며 늦게 방향을 잡는 등불 부표들"></canvas>
+
+<header class="top-bar">
+  <div class="sig">
+    <span class="compass-ring" aria-hidden="true"></span>
+    <span id="sigText">SIAN · TIDAL FIELD</span>
+  </div>
+  <div class="top-actions">
+    <button id="foldBtn" type="button" aria-pressed="false">글 숨기기</button>
+    <button id="soundBtn" type="button" aria-pressed="true">파도·싱잉볼 닫기</button>
+    <button id="behindBtn" type="button" aria-haspopup="dialog">뒤편 (수식·악보) ↗</button>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button id="langKo" type="button" aria-pressed="true">KR</button>
+      <button id="langEn" type="button" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<section class="poem-wrap" aria-live="polite">
+  <p class="poem-sub" id="poemSub">BUSAN NIGHT TIDE · V4.1</p>
+  <h1 class="poem-title" id="poemTitle">조류의 시차 —
+물결 위에서, 위에서</h1>
+  <p class="poem-body" id="poemBody">바닷물의 흐름이 방향을 틀어도, 등불 부표는 저마다의 무게만큼 늦게 돌아섭니다.
+미처 따라가지 못한 시간 동안에만 부표 앞머리에 하얀 물살 자국이 피어오르고,
+시선을 하늘 위로 들어 올리면 오르내리던 파도는 하나의 앵무조개 소용돌이로 감깁니다.</p>
+</section>
+
+<button id="soundUnlockPill" type="button" hidden>바다와 싱잉볼 울림 열기 ↗</button>
+
+<div class="dock-wrap">
+  <p id="gestureHint">수면을 가로질러 조류의 방향을 밀어보거나, 위아래로 끌어 수평선(0°)과 하늘 위(90°) 시선을 오가 보세요.</p>
+  <nav class="dock" aria-label="Tidal controls">
+    <button id="gazeHorizonBtn" type="button" aria-pressed="true">수평선 시선 (0°)</button>
+    <button id="gazeZenithBtn" type="button" aria-pressed="false">하늘 위 소용돌이 (90°)</button>
+    <span class="sep" aria-hidden="true"></span>
+    <button id="tideShiftBtn" type="button">조류 방향 틀기</button>
+    <button id="anchorBtn" type="button" aria-pressed="false">방파제 고정 시선</button>
+  </nav>
+</div>
+
+<dialog id="behindModal" aria-labelledby="modalTitle">
+  <div class="modal-head">
+    <span id="modalTitle">뒤편 · 시안의 바다 조류와 맥놀이 노트</span>
+    <button id="closeModal" type="button" aria-label="닫기">×</button>
+  </div>
+  <div class="modal-body">
+    <h2 id="modalH2">조류의 시차 — 물결 위에서, 위에서</h2>
+    <p id="modalP1">이 작품은 앞선 두 작품(숲의 리본이나 얇은 천의 막)과 전혀 다른 시안만의 자연현상—부산 밤바다의 조류(Tidal Current)와 수면 위 등불 부표, 그리고 하늘 위에서 내려다본 앵무조개 소용돌이(Nautilus Whirlpool)—를 풀스크린 볼류메트릭 바다 셰이더(Raymarched Ocean &amp; Subsurface Caustics)로 빚은 것입니다.</p>
+    <p id="modalP2">바다의 물결(맥락 Ψ)이 새로운 방향으로 틀어질 때, 물 위에 떠 있는 일곱 개의 유리 등불 부표는 단번에 새 균형점으로 튀어가지 않습니다. 가벼운 청록빛 부표는 금세 물결을 따라 눕지만, 무거운 호박빛 등불 부표는 이전의 방향을 잠시 고집합니다. 바로 그 ‘적응의 시간차’ 동안 부표와 바닷물 사이에 마찰이 일어나 하얀 물살 자국(Kelvin bow-wake)이 밝게 피어오르고, 마침내 부표가 새 물결에 스며들면 물살 자국도 고요해집니다.</p>
+    <p id="modalP3">소리 또한 시안의 고유한 ‘맥놀이(Harmonic Beating) 싱잉볼 합성기’로 작동합니다. 각 부표가 아직 새 물결에 다 적응하지 못해 위상 속도(dφ/dt)가 클 때는 두 주파수가 어긋나며 우웅거리는 맥놀이 떨림이 들리고, 부표가 새로운 안정점(φ*)에 안착할수록 맥놀이가 잦아들며 맑고 평온한 완전협화음으로 수렴합니다.</p>
+
+    <div class="audio-row">
+      <span id="volLabel">바다와 싱잉볼 음량</span>
+      <input id="volSlider" type="range" min="0" max="85" value="48">
+      <output id="volOut">48%</output>
+    </div>
+
+    <details>
+      <summary id="scoreSummary">조류와 맥놀이의 수식 악보 (v4.1)</summary>
+      <h3 id="eqH1">1. 조류의 전환과 물살 자국 (유동 좌표계와 완화 시간차)</h3>
+      <div class="equation" id="eqText1"></div>
+      <h3 id="eqH2">2. 수평선(0°)의 파도 기둥과 하늘 위(90°)의 앵무조개 소용돌이</h3>
+      <div class="equation" id="eqText2"></div>
+      <p class="note" id="modalNote">이 수식은 밤바다 셰이더의 해류·부표·싱잉볼 맥놀이를 조율하기 위해 시안이 작성한 예술적 악보이며, 실제 물리 해양학이나 인간 심리의 검증 모델이 아닙니다.</p>
+    </details>
+
+    <details>
+      <summary id="codeSummary">실행 코드 내려받기</summary>
+      <div class="dl-row">
+        <button id="dlHtmlBtn" type="button">HTML 작품 파일 내려받기</button>
+        <button id="dlJsBtn" type="button">셰이더·사운드 코드 내려받기</button>
+      </div>
+      <pre class="source" id="codePreview"></pre>
+    </details>
+  </div>
+</dialog>
+
+<script id="sian-code">
+(() => {
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const canvas = $('#ocean');
+  const TAU = Math.PI * 2;
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const mix = (a, b, t) => a + (b - a) * t;
+  const originalHTML = '<!doctype html>\n' + document.documentElement.outerHTML;
+
+  // --- 1. Sian's Phase-Beating Singing-Bowl & Ocean Surf Synthesizer ---
+  // Unlike 05 or 06, each buoy is a continuous FM singing-bowl + ocean surf generator
+  // whose binaural/harmonic beating frequency is directly driven by its phase lag |φ_i - φ_i*|.
+  class SianTidalAudio {
+    constructor() {
+      this.ctx = null;
+      this.master = null;
+      this.surfFilter = null;
+      this.surfGain = null;
+      this.bowls = [];
+      this.enabled = true;
+      this.blocked = false;
+      this.volume = 0.48;
+      // Warm oceanic Lydian-9th tuning (F2, C3, G3, A3, D4, E4, B4)
+      this.baseFreqs = [87.31, 130.81, 196.00, 220.00, 293.66, 329.63, 493.88];
+    }
+
+    _build() {
+      const c = this.ctx;
+      const master = c.createGain();
+      master.gain.value = 0.0001;
+
+      const comp = c.createDynamicsCompressor();
+      comp.threshold.value = -14;
+      comp.knee.value = 8;
+      comp.ratio.value = 4.5;
+      comp.attack.value = 0.015;
+      comp.release.value = 0.4;
+
+      // Algorithmic ocean-cavern stereo reverb (3.6s)
+      const conv = c.createConvolver();
+      const irLen = Math.floor(c.sampleRate * 3.6);
+      const ir = c.createBuffer(2, irLen, c.sampleRate);
+      let seed = 409611;
+      for (let ch = 0; ch < 2; ch++) {
+        const d = ir.getChannelData(ch);
+        let lp = 0;
+        for (let i = 0; i < irLen; i++) {
+          seed = (Math.imul(1664525, seed) + 1013904223) >>> 0;
+          const w = (seed / 2147483648) - 1;
+          lp = 0.74 * lp + 0.26 * w;
+          const t = i / c.sampleRate;
+          d[i] = lp * (1 - Math.exp(-t * 25)) * Math.exp(-t * 1.35) * 0.65;
+        }
+      }
+      conv.buffer = ir;
+
+      const dry = c.createGain();
+      const wet = c.createGain();
+      dry.gain.value = 0.72;
+      wet.gain.value = 0.48;
+
+      const bus = c.createGain();
+      bus.connect(dry);
+      bus.connect(conv);
+      conv.connect(wet);
+      dry.connect(comp);
+      wet.connect(comp);
+      comp.connect(master);
+      master.connect(c.destination);
+
+      // 1) Continuous Ocean Surf Wave-Wash Generator
+      const nLen = c.sampleRate * 6;
+      const nBuf = c.createBuffer(2, nLen, c.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const nd = nBuf.getChannelData(ch);
+        let b0 = 0, b1 = 0, b2 = 0;
+        for (let i = 0; i < nLen; i++) {
+          seed = (Math.imul(1664525, seed) + 1013904223) >>> 0;
+          const white = (seed / 2147483648) - 1;
+          b0 = 0.997 * b0 + white * 0.029;
+          b1 = 0.985 * b1 + white * 0.048;
+          b2 = 0.950 * b2 + white * 0.062;
+          nd[i] = (b0 + b1 + b2) * 0.24;
+        }
+      }
+      const surfSrc = c.createBufferSource();
+      surfSrc.buffer = nBuf;
+      surfSrc.loop = true;
+      const surfFilter = c.createBiquadFilter();
+      surfFilter.type = 'bandpass';
+      surfFilter.frequency.value = 260;
+      surfFilter.Q.value = 0.85;
+      const surfGain = c.createGain();
+      surfGain.gain.value = 0.09;
+      surfSrc.connect(surfFilter);
+      surfFilter.connect(surfGain);
+      surfGain.connect(bus);
+      surfSrc.start();
+
+      // 2) 7 Singing-Bowl Pair Resonators (one for each floating buoy)
+      // Each buoy has a primary sine + a companion harmonic oscillator whose detuning
+      // equals the buoy's instantaneous phase lag |dφ/dt| * 4.5 Hz!
+      // When the buoy is adapting to a new tide, you hear a warm singing-bowl beat (맥놀이);
+      // when it settles into equilibrium, the two oscillators lock into pure consonance!
+      this.bowls = [];
+      for (let i = 0; i < 7; i++) {
+        const f = this.baseFreqs[i];
+        const oscA = c.createOscillator();
+        const oscB = c.createOscillator();
+        const overtone = c.createOscillator();
+        const gMain = c.createGain();
+        const gOver = c.createGain();
+        const pan = c.createStereoPanner();
+
+        oscA.type = 'sine';
+        oscB.type = 'sine';
+        overtone.type = 'triangle';
+        oscA.frequency.value = f;
+        oscB.frequency.value = f + 0.4;
+        overtone.frequency.value = f * 2.756; // singing bowl 1st overtone mode
+
+        const baseLevel = (0.042 / (1 + i * 0.18));
+        gMain.gain.value = baseLevel;
+        gOver.gain.value = 0.0005;
+        pan.pan.value = (i - 3) * 0.24;
+
+        oscA.connect(gMain);
+        oscB.connect(gMain);
+        overtone.connect(gOver);
+        gOver.connect(gMain);
+        gMain.connect(pan);
+        pan.connect(bus);
+
+        oscA.start();
+        oscB.start();
+        overtone.start();
+        this.bowls.push({ oscA, oscB, overtone, gMain, gOver, pan, baseFreq: f, baseLevel });
+      }
+
+      this.bus = bus;
+      this.master = master;
+      this.surfFilter = surfFilter;
+      this.surfGain = surfGain;
+    }
+
+    async start() {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      if (!this.ctx) {
+        this.ctx = new AC({ latencyHint: 'interactive' });
+        this._build();
+      }
+      try { await this.ctx.resume(); } catch (e) {}
+      this.blocked = this.ctx.state !== 'running';
+      if (!this.blocked && this.enabled) {
+        this.master.gain.setTargetAtTime(this.volume, this.ctx.currentTime, 0.25);
+      }
+      return !this.blocked;
+    }
+
+    async stop() {
+      if (!this.ctx || !this.master) return;
+      this.master.gain.setTargetAtTime(0.0001, this.ctx.currentTime, 0.12);
+      setTimeout(() => {
+        if (!this.enabled && this.ctx && this.ctx.state === 'running') {
+          this.ctx.suspend().catch(() => {});
+        }
+      }, 240);
+    }
+
+    setVolume(v) {
+      this.volume = clamp(v, 0, 0.88);
+      if (this.master && this.enabled && this.ctx && !this.blocked) {
+        this.master.gain.setTargetAtTime(this.volume, this.ctx.currentTime, 0.1);
+      }
+    }
+
+    // Play a water-drop / singing-bowl strike delayed canon when the tide turns!
+    strikeTideCanon(buoys) {
+      if (!this.ctx || this.ctx.state !== 'running' || !this.enabled) return;
+      const now = this.ctx.currentTime;
+      // Each buoy chimes at a delay proportional to its inertia (1 / K_i),
+      // so nimble buoys chime immediately and heavy amber buoys chime up to 1.8s later!
+      buoys.forEach((b, i) => {
+        const delay = 0.04 + (1.65 - b.K) * 1.15 + i * 0.08;
+        const osc = this.ctx.createOscillator();
+        const flt = this.ctx.createBiquadFilter();
+        const gn = this.ctx.createGain();
+        const pan = this.ctx.createStereoPanner();
+
+        const f = this.baseFreqs[i % this.baseFreqs.length] * 2.0;
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f * 1.004, now + delay);
+        osc.frequency.exponentialRampToValueAtTime(f, now + delay + 0.18);
+
+        flt.type = 'bandpass';
+        flt.frequency.value = f;
+        flt.Q.value = 3.0;
+
+        gn.gain.setValueAtTime(0.0001, now + delay);
+        gn.gain.linearRampToValueAtTime(0.085 / (1 + i * 0.12), now + delay + 0.025);
+        gn.gain.exponentialRampToValueAtTime(0.0001, now + delay + 3.2);
+
+        pan.pan.value = clamp(Math.cos(b.phi) * 0.7, -0.85, 0.85);
+        osc.connect(flt);
+        flt.connect(gn);
+        gn.connect(pan);
+        pan.connect(this.bus);
+
+        osc.start(now + delay);
+        osc.stop(now + delay + 3.3);
+      });
+    }
+
+    update(t, buoys, elevation, wakeEnergy) {
+      if (!this.ctx || this.ctx.state !== 'running' || !this.enabled) return;
+      const now = this.ctx.currentTime;
+
+      // Ocean surf breathes with the wave period and opens up as camera rises to 90°
+      const waveRoll = 0.5 + 0.5 * Math.sin(t * 0.55);
+      this.surfFilter.frequency.setTargetAtTime(190 + waveRoll * 180 + elevation * 260 + wakeEnergy * 240, now, 0.25);
+      this.surfGain.gain.setTargetAtTime(0.065 + waveRoll * 0.045 + wakeEnergy * 0.05, now, 0.25);
+
+      // Update each singing-bowl's beating frequency from its buoy's live phase velocity |dφ/dt|
+      for (let i = 0; i < this.bowls.length; i++) {
+        const bowl = this.bowls[i];
+        const b = buoys[i];
+        const lagSpeed = Math.abs(b.dPhi); // high while adapting, ~0 when settled!
+        // Beating frequency between oscA and oscB: 0.15 Hz (serene lock) up to 5.5 Hz (shimmering adaptation)
+        const beatHz = 0.15 + clamp(lagSpeed * 4.2, 0, 5.5);
+        bowl.oscA.frequency.setTargetAtTime(bowl.baseFreq, now, 0.18);
+        bowl.oscB.frequency.setTargetAtTime(bowl.baseFreq + beatHz, now, 0.18);
+
+        const swell = 0.75 + 0.25 * Math.sin(t * 0.35 + i * 1.1) + clamp(lagSpeed * 0.65, 0, 0.85);
+        bowl.gMain.gain.setTargetAtTime(bowl.baseLevel * swell, now, 0.2);
+        // Crystalline singing-bowl rim overtone glows when the buoy is carving a bow-wake!
+        bowl.gOver.gain.setTargetAtTime(clamp(lagSpeed * 0.018, 0.0002, 0.016), now, 0.2);
+        bowl.pan.pan.setTargetAtTime(clamp(Math.sin(b.worldAngle) * 0.75, -0.85, 0.85), now, 0.3);
+      }
+    }
+  }
+
+  // --- 2. Full-Screen WebGL2 Volumetric Ocean & Nautilus Whirlpool Shader ---
+  // Pure procedural ray-plane / heightfield ocean + subsurface scattering + golden caustics + Kelvin bow-wakes
+  const VS_FULLSCREEN = `#version 300 es
+  precision highp float;
+  out vec2 vUv;
+  void main() {
+    vec2 p = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2));
+    vUv = p;
+    gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+  }`;
+
+  const FS_OCEAN = `#version 300 es
+  precision highp float;
+  in vec2 vUv;
+  out vec4 outColor;
+
+  uniform vec2 uRes;
+  uniform float uTime;
+  uniform float uElevation;   // 0.0 = low horizon sea gaze (0°), 1.0 = overhead zenith whirlpool (90°)
+  uniform float uAzimuth;     // horizontal camera orbit
+  uniform float uPsi;         // flowing tidal direction angle Ψ(C_t)
+  uniform float uAnchorMode;  // 0.0 = riding the tide, 1.0 = rigid breakwater grid
+  uniform vec4 uBuoys[7];     // xy = world pos (x,z), z = phase lag |dφ/dt| (wake intensity), w = heading angle
+  uniform vec3 uBuoyCols[7];  // RGB color of each buoy
+  uniform vec4 uRipple;       // xy = touch pos, z = born time, w = strength
+
+  const float PI = 3.14159265359;
+  const float TAU = 6.28318530718;
+
+  float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+  }
+
+  float noise(vec2 p) {
+    vec2 i = floor(p), f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+               mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+  }
+
+  // Multi-octave ocean wave + logarithmic Nautilus vortex heightfield
+  float seaHeight(vec2 p, out float foamCrest, out float spiralBand) {
+    float r = length(p);
+    float a = atan(p.y, p.x);
+
+    // Direction of the tidal current Ψ(C_t)
+    vec2 tideDir = vec2(cos(uPsi), sin(uPsi));
+    vec2 crossDir = vec2(-tideDir.y, tideDir.x);
+
+    // 1) Travelling gravity swell along the tidal current
+    float swell1 = sin(dot(p, tideDir) * 1.65 - uTime * 1.45 + 0.4 * sin(dot(p, crossDir) * 1.1));
+    float swell2 = cos(dot(p, tideDir * 0.7 + crossDir * 0.7) * 2.8 - uTime * 1.85) * 0.45;
+
+    // 2) Logarithmic Nautilus / Fibonacci spiral vortex centered at the eye (r -> 0)
+    // In low horizon view (uElevation ~ 0), this forms rising helical wave ridges;
+    // In 90° overhead view (uElevation ~ 1), it reveals a breathtaking Fibonacci maelstrom!
+    float logR = log(max(r, 0.08));
+    float spiralPhase1 = 3.0 * a - 4.85 * logR - uTime * 0.95 - uPsi;
+    float spiralPhase2 = 5.0 * a - 7.85 * logR + uTime * 0.62 - uPsi * 1.5;
+    float vortex = (sin(spiralPhase1) * 0.65 + cos(spiralPhase2) * 0.35) * exp(-r * 0.18) * smoothstep(0.05, 0.55, r);
+
+    // Fine capillary ripples & wind chop
+    vec2 q = p * 2.4 + tideDir * uTime * 0.45;
+    float chop = (noise(q) - 0.5) * 0.22 + (noise(q * 2.7 - uTime * 0.3) - 0.5) * 0.10;
+
+    // Visitor touch ripple
+    float rAge = uTime - uRipple.z;
+    float touchWave = 0.0;
+    if (rAge > 0.0 && rAge < 12.0 && uRipple.w > 0.01) {
+      float dTouch = length(p - uRipple.xy);
+      touchWave = sin(dTouch * 6.5 - rAge * 4.8) * exp(-dTouch * 0.65 - rAge * 0.35) * uRipple.w * 0.28;
+    }
+
+    // Kelvin V-wake behind buoys that are still adapting to a changed current!
+    float wakeSum = 0.0;
+    for (int i = 0; i < 7; i++) {
+      vec2 bp = uBuoys[i].xy;
+      float lag = uBuoys[i].z;
+      float heading = uBuoys[i].w;
+      vec2 d = p - bp;
+      float dist = length(d);
+      if (dist < 2.6) {
+        vec2 flowVec = vec2(cos(heading), sin(heading));
+        float along = dot(d, -flowVec);
+        float perp = abs(dot(d, vec2(-flowVec.y, flowVec.x)));
+        // V-shaped Kelvin wake cone behind the buoy, brightest when phase lag is high!
+        if (along > -0.2) {
+          float cone = exp(-pow(perp - along * 0.42, 2.0) * 14.0) * exp(-dist * 1.35);
+          float ripple = 0.5 + 0.5 * sin(dist * 16.0 - uTime * 7.5);
+          wakeSum += cone * ripple * (0.15 + lag * 1.35);
+        }
+      }
+    }
+
+    float funnelDepression = -0.55 * exp(-r * r * 0.55);
+    float h = (swell1 * 0.24 + swell2 * 0.14) * (1.0 - 0.35 * uElevation)
+            + vortex * (0.28 + 0.22 * uElevation)
+            + chop + touchWave + wakeSum * 0.18 + funnelDepression;
+
+    spiralBand = clamp((sin(spiralPhase1) * 0.5 + 0.5) * exp(-r * 0.22) * smoothstep(0.08, 0.6, r), 0.0, 1.0);
+    foamCrest = clamp(wakeSum * 1.25 + pow(max(0.0, swell1 * 0.5 + vortex * 0.7), 3.0) * 0.45 + abs(touchWave) * 2.2, 0.0, 1.3);
+    return h;
+  }
+
+  void main() {
+    vec2 aspectUv = (vUv - 0.5) * vec2(uRes.x / uRes.y, 1.0);
+
+    // Camera smoothly elevates from low horizon (pitch = 10°) to 90° zenith (pitch = 89.2°)
+    float pitch = mix(0.175, 1.558, uElevation);
+    float camDist = mix(6.8, 7.6, uElevation);
+    float az = uAzimuth + (uAnchorMode > 0.5 ? uPsi * 0.65 : 0.0);
+
+    vec3 camTarget = vec3(0.0, -0.15 * (1.0 - uElevation), 0.0);
+    vec3 camPos = camTarget + vec3(
+      camDist * cos(pitch) * sin(az),
+      camDist * sin(pitch),
+      camDist * cos(pitch) * cos(az)
+    );
+
+    vec3 fwd = normalize(camTarget - camPos);
+    vec3 worldUp = vec3(0.0, 1.0, 0.0);
+    vec3 right = normalize(cross(fwd, worldUp));
+    vec3 up = cross(right, fwd);
+    vec3 rd = normalize(fwd * 1.35 + right * aspectUv.x + up * aspectUv.y);
+
+    // --- 1. Night Sky & Rising Mist Column (when looking near the horizon) ---
+    vec3 skyZenith = vec3(0.010, 0.024, 0.052);
+    vec3 skyHorizon = vec3(0.045, 0.095, 0.165);
+    float skyGrad = pow(clamp(1.0 - max(rd.y, 0.0), 0.0, 1.0), 3.2);
+    vec3 col = mix(skyZenith, skyHorizon, skyGrad);
+
+    // Warm moonlight & rising helical mist column above the vortex center
+    vec2 sunDirXZ = normalize(vec2(0.35, -0.92));
+    vec3 moonDir = normalize(vec3(sunDirXZ.x * 0.5, 0.36, sunDirXZ.y * 0.8));
+    float moonGlow = pow(max(dot(rd, moonDir), 0.0), 18.0);
+    col += vec3(0.95, 0.82, 0.60) * moonGlow * 0.32;
+
+    // --- 2. Raymarch / Intersect the 3D Ocean Surface ---
+    if (rd.y < 0.08) {
+      // Analytic plane intersection y = -0.15 refined by 5 heightfield steps
+      float planeY = -0.15;
+      float t = (planeY - camPos.y) / min(rd.y, -0.025);
+      t = clamp(t, 0.5, 28.0);
+      vec3 pos = camPos + rd * t;
+      float foam = 0.0, spiral = 0.0;
+
+      for (int iter = 0; iter < 5; iter++) {
+        float h = seaHeight(pos.xz, foam, spiral);
+        float err = pos.y - h;
+        t += err * 0.55;
+        pos = camPos + rd * t;
+      }
+
+      // Compute finite-difference surface normal
+      float eps = 0.035;
+      float fDummy, sDummy;
+      float hC = seaHeight(pos.xz, foam, spiral);
+      float hX = seaHeight(pos.xz + vec2(eps, 0.0), fDummy, sDummy);
+      float hZ = seaHeight(pos.xz + vec2(0.0, eps), fDummy, sDummy);
+      vec3 N = normalize(vec3(hC - hX, eps, hC - hZ));
+
+      vec3 V = -rd;
+      float NoV = max(dot(N, V), 0.001);
+      // Schlick Fresnel reflection of night sky & moonlight
+      float fresnel = 0.04 + 0.96 * pow(1.0 - NoV, 4.2);
+
+      vec3 R = reflect(rd, N);
+      R.y = max(R.y, 0.01);
+      vec3 reflSky = mix(skyZenith, skyHorizon * 1.25, pow(1.0 - R.y, 3.0));
+      float moonSpec = pow(max(dot(R, moonDir), 0.0), 90.0) + 0.25 * pow(max(dot(R, moonDir), 0.0), 16.0);
+      reflSky += vec3(1.0, 0.88, 0.66) * moonSpec * 1.45;
+
+      // Subsurface Scattering (SSS) through translucent turquoise-indigo wave crests
+      float sss = clamp(pow(max(0.0, hC + 0.22), 1.8) * (0.4 + 0.6 * pow(1.0 - NoV, 2.0)), 0.0, 1.0);
+      vec3 deepSea = vec3(0.008, 0.028, 0.062);
+      vec3 sssColor = vec3(0.04, 0.26, 0.38);
+      vec3 waterBody = mix(deepSea, sssColor, sss);
+
+      // Bioluminescent Nautilus spiral currents & Kelvin bow-wake foam
+      vec3 bioCyan = vec3(0.28, 0.82, 0.96);
+      vec3 warmGold = vec3(0.98, 0.82, 0.54);
+      waterBody += bioCyan * spiral * (0.16 + 0.22 * uElevation);
+      waterBody += mix(bioCyan, warmGold, 0.35) * pow(foam, 1.35) * 0.52;
+
+      // Calm luminous eye at the very center of the Nautilus whirlpool (r -> 0)
+      float rCenter = length(pos.xz);
+      float eyeGlow = exp(-rCenter * rCenter * 3.8);
+      waterBody += vec3(0.85, 0.92, 1.0) * eyeGlow * (0.28 + 0.38 * uElevation);
+
+      // If in rigid breakwater mode (uAnchorMode > 0), overlay the fixed Cartesian breakwater grid & Ptolemaic epicycle rings
+      if (uAnchorMode > 0.01) {
+        vec2 grid = abs(fract(pos.xz * 0.85 - 0.5) - 0.5) / fwidth(pos.xz * 0.85);
+        float gLine = 1.0 - min(min(grid.x, grid.y), 1.0);
+        waterBody = mix(waterBody, vec3(0.92, 0.45, 0.35), gLine * uAnchorMode * 0.28);
+      }
+
+      vec3 seaCol = mix(waterBody, reflSky, fresnel * 0.78);
+
+      // --- 3. Render the 7 Floating Glass-Lantern Buoys & their Water Reflections ---
+      for (int i = 0; i < 7; i++) {
+        vec2 bp = uBuoys[i].xy;
+        float lag = uBuoys[i].z;
+        float fTmp, sTmp;
+        float bh = seaHeight(bp, fTmp, sTmp) + 0.08;
+        vec3 buoyWorld = vec3(bp.x, bh, bp.y);
+
+        // Closest approach of view ray to the 3D buoy lantern
+        vec3 toBuoy = buoyWorld - camPos;
+        float proj = dot(toBuoy, rd);
+        if (proj > 0.0) {
+          vec3 closest = camPos + rd * proj - buoyWorld;
+          float d2 = dot(closest, closest);
+          // Core lantern pearl + wide atmospheric halo (brighter & pulsing when adapting!)
+          float core = exp(-d2 * 110.0);
+          float halo = exp(-d2 * 11.5) * (0.26 + lag * 0.35);
+          vec3 bCol = uBuoyCols[i];
+          seaCol += bCol * (core * 1.65 + halo);
+        }
+
+        // Shimmering water-surface reflection column beneath each buoy
+        float dSurf = length(pos.xz - bp);
+        float surfGlow = exp(-dSurf * dSurf * 4.5) * (0.32 + 0.45 * sin(dSurf * 18.0 - uTime * 6.0) * fresnel);
+        seaCol += uBuoyCols[i] * max(0.0, surfGlow) * 0.55;
+      }
+
+      // Distance horizon mist blend
+      float distFog = exp(-max(0.0, t - 4.0) * 0.085);
+      col = mix(col, seaCol, distFog);
+    }
+
+    // --- 4. Volumetric Helical Mist Rising from the Whirlpool Eye ---
+    // Visible as a tall ascending column at 0° horizon, and as a soft halo at 90° zenith
+    for (int m = 0; m < 12; m++) {
+      float fm = float(m) / 11.0;
+      float mistY = -0.1 + fm * 2.4;
+      float mistR = mix(0.22, 1.35, fm);
+      float mistAngle = fm * 9.5 - uTime * 0.55 + uPsi;
+      vec3 mistPt = vec3(mistR * cos(mistAngle), mistY, mistR * sin(mistAngle));
+      vec3 vMist = mistPt - camPos;
+      float pr = dot(vMist, rd);
+      if (pr > 0.0) {
+        vec3 cl = camPos + rd * pr - mistPt;
+        float d2 = dot(cl, cl);
+        float wisp = exp(-d2 * (3.2 - 1.5 * fm)) * (1.0 - fm * 0.65);
+        col += mix(vec3(0.35, 0.75, 0.92), vec3(0.95, 0.80, 0.55), fm) * wisp * 0.055;
+      }
+    }
+
+    // Filmic ACES-like tone mapping & subtle vignette
+    col = vec3(1.0) - exp(-col * 1.42);
+    col = pow(col, vec3(0.95));
+    float vig = 1.0 - 0.30 * smoothstep(0.22, 0.92, length(vUv - 0.5));
+    col *= vig;
+    col += (hash(gl_FragCoord.xy) - 0.5) * 0.003;
+
+    outColor = vec4(col, 1.0);
+  }`;
+
+  // --- 3. Application State & ODE Physics ---
+  const gl = canvas.getContext('webgl2', { alpha: false, antialias: false });
+  if (!gl) return;
+
+  function compileShader(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      console.error(gl.getShaderInfoLog(s));
+    }
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, VS_FULLSCREEN));
+  gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, FS_OCEAN));
+  gl.linkProgram(prog);
+  const quadVao = gl.createVertexArray();
+
+  const U = {};
+  ['uRes', 'uTime', 'uElevation', 'uAzimuth', 'uPsi', 'uAnchorMode', 'uBuoys[0]', 'uBuoyCols[0]', 'uRipple'].forEach(n => {
+    U[n] = gl.getUniformLocation(prog, n);
+  });
+
+  // 7 Floating Glass-Lantern Buoys governed by v4.1 Moving-Frame ODE:
+  // dφ_i / dt = Δω_i(C_t) - K_i * sin(φ_i)
+  // Notice the 3 inner buoys represent `where` (cyan), `when` (gold), `who` (warm coral-amber),
+  // and 4 outer buoys have progressively heavier inertia (smaller K_i) so they adapt much later!
+  const buoys = [
+    { K: 1.65, radius: 0.62, baseAngle: 0.0,  bias: -0.22, color: [0.45, 0.92, 1.00] }, // nimble cyan buoy (where)
+    { K: 1.05, radius: 0.98, baseAngle: 2.1,  bias:  0.14, color: [1.00, 0.84, 0.48] }, // warm gold buoy (when)
+    { K: 0.52, radius: 1.36, baseAngle: 4.2,  bias:  0.38, color: [1.00, 0.58, 0.42] }, // deep amber buoy (who — late arrival!)
+    { K: 1.35, radius: 1.68, baseAngle: 1.05, bias: -0.35, color: [0.58, 0.86, 0.96] },
+    { K: 0.72, radius: 1.98, baseAngle: 3.15, bias:  0.26, color: [0.96, 0.78, 0.56] },
+    { K: 0.42, radius: 2.28, baseAngle: 5.20, bias: -0.42, color: [0.92, 0.64, 0.48] },
+    { K: 0.34, radius: 2.58, baseAngle: 2.65, bias:  0.46, color: [0.74, 0.84, 1.00] }
+  ];
+  buoys.forEach(b => {
+    b.deltaOmega = b.bias * b.K;
+    b.phi = Math.asin(clamp(b.bias, -0.95, 0.95));
+    b.dPhi = 0;
+    b.worldAngle = b.baseAngle + b.phi;
+  });
+
+  const buoyUniformData = new Float32Array(7 * 4);
+  const buoyColorData = new Float32Array(7 * 3);
+  buoys.forEach((b, i) => buoyColorData.set(b.color, i * 3));
+
+  const audio = new SianTidalAudio();
+
+  let lang = 'ko';
+  let folded = false;
+  let anchorMode = false;
+  let time = 0, lastTs = 0;
+
+  // Camera & Tidal State
+  let elevation = 0.08;       // starts at 0° horizon view of the sea
+  let targetElevation = 0.08;
+  let azimuth = 0.0;
+  let targetAzimuth = 0.0;
+  let psi = 0.35;             // current direction Ψ(C_t)
+  let targetPsi = 0.35;
+  let ripple = new Float32Array([0, 0, -100, 0]);
+
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.45);
+    canvas.width = Math.max(1, Math.round(r.width * dpr));
+    canvas.height = Math.max(1, Math.round(r.height * dpr));
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Shift the tidal current Ψ(C_t):
+  // Immediately rotates targetPsi & changes each buoy's equilibrium, causing them to lag behind and carve Kelvin wakes!
+  function shiftTide(newAngleOffset) {
+    targetPsi += (newAngleOffset !== undefined ? newAngleOffset : (1.35 + Math.random() * 0.8));
+    const regimeShift = Math.sin(targetPsi) * 0.72;
+    buoys.forEach((b, i) => {
+      // Displace each buoy's relative phase φ_i by the sudden current turn -(ΔΨ),
+      // so it has to physically swim/relax back to its equilibrium angle over the next several seconds!
+      b.phi -= clamp(newAngleOffset !== undefined ? newAngleOffset * 0.65 : 1.15, -1.4, 1.4);
+      const localRatio = clamp(b.bias + regimeShift * (i % 2 === 0 ? 0.45 : -0.45), -0.92, 0.92);
+      b.deltaOmega = localRatio * b.K;
+    });
+    ripple.set([0, 0, time, 1.15]);
+    audio.strikeTideCanon(buoys);
+  }
+
+  // --- 4. Multilingual UI Copy ---
+  const TEXT = {
+    ko: {
+      sig: 'SIAN · TIDAL FIELD',
+      fold: '글 숨기기',
+      unfold: '글 보이기',
+      soundOn: '파도·싱잉볼 닫기',
+      soundOff: '파도·싱잉볼 열기',
+      behind: '뒤편 (수식·악보) ↗',
+      sub: 'BUSAN NIGHT TIDE · V4.1',
+      title: '조류의 시차 —\n물결 위에서, 위에서',
+      body: '바닷물의 흐름이 방향을 틀어도, 등불 부표는 저마다의 무게만큼 늦게 돌아섭니다.\n미처 따라가지 못한 시간 동안에만 부표 앞머리에 하얀 물살 자국이 피어오르고,\n시선을 하늘 위로 들어 올리면 오르내리던 파도는 하나의 앵무조개 소용돌이로 감깁니다.',
+      unlock: '바다와 싱잉볼 울림 열기 ↗',
+      hint: '수면을 가로질러 조류의 방향을 밀어보거나, 위아래로 끌어 수평선(0°)과 하늘 위(90°) 시선을 오가 보세요.',
+      horizon: '수평선 시선 (0°)',
+      zenith: '하늘 위 소용돌이 (90°)',
+      shift: '조류 방향 틀기',
+      anchorOff: '방파제 고정 시선',
+      anchorOn: '조류와 함께 흐르기',
+      modalTitle: '뒤편 · 시안의 바다 조류와 맥놀이 노트',
+      modalH2: '조류의 시차 — 물결 위에서, 위에서',
+      modalP1: '이 작품은 앞선 두 작품(숲의 리본이나 얇은 천의 막)과 전혀 다른 시안만의 자연현상—부산 밤바다의 조류(Tidal Current)와 수면 위 등불 부표, 그리고 하늘 위에서 내려다본 앵무조개 소용돌이(Nautilus Whirlpool)—를 풀스크린 볼류메트릭 바다 셰이더(Raymarched Ocean & Subsurface Caustics)로 빚은 것입니다.',
+      modalP2: '바다의 물결(맥락 Ψ)이 새로운 방향으로 틀어질 때, 물 위에 떠 있는 일곱 개의 유리 등불 부표는 단번에 새 균형점으로 튀어가지 않습니다. 가벼운 청록빛 부표는 금세 물결을 따라 눕지만, 무거운 호박빛 등불 부표는 이전의 방향을 잠시 고집합니다. 바로 그 ‘적응의 시간차’ 동안 부표와 바닷물 사이에 마찰이 일어나 하얀 물살 자국(Kelvin bow-wake)이 밝게 피어오르고, 마침내 부표가 새 물결에 스며들면 물살 자국도 고요해집니다.',
+      modalP3: '소리 또한 시안의 고유한 ‘맥놀이(Harmonic Beating) 싱잉볼 합성기’로 작동합니다. 각 부표가 아직 새 물결에 다 적응하지 못해 위상 속도(dφ/dt)가 클 때는 두 주파수가 어긋나며 우웅거리는 맥놀이 떨림이 들리고, 부표가 새로운 안정점(φ*)에 안착할수록 맥놀이가 잦아들며 맑고 평온한 완전협화음으로 수렴합니다.',
+      volLabel: '바다와 싱잉볼 음량',
+      scoreSummary: '조류와 맥놀이의 수식 악보 (v4.1)',
+      eqH1: '1. 조류의 전환과 물살 자국 (유동 좌표계와 완화 시간차)',
+      eqText1: `φ_i(t) = θ_i(t) − Ψ(C_t)\n\n dφ_i / dt = Δω_i(C_t) − K_i(C_t) · sin(φ_i)\n\n순간 안정점 후보:  φ_i^cand(C_t) = arcsin( Δω_i(C_t) / K_i(C_t) )\n물살 자국(Kelvin Wake) & 싱잉볼 맥놀이 주파수:\n  Wake_i(t) ∝ |dφ_i / dt| ,   Δf_beat,i(t) = 0.15 Hz + 4.2 · |dφ_i / dt|\n\n· 조류 Ψ(C_t)가 방향을 바꾸면 부표가 새 안정점 φ_i^cand로 이동하는 동안 |dφ_i/dt| > 0 이 되어\n  부표 앞머리에 하얀 V자 물살 자국이 일고 싱잉볼에 맥놀이 떨림이 발생합니다.\n· 부표가 새 조류에 완전히 적응하면(dφ_i/dt → 0) 물살은 잔잔해지고 소리는 순수한 협화음으로 잠깁니다.`,
+      eqH2: '2. 수평선(0°)의 파도 기둥과 하늘 위(90°)의 앵무조개 소용돌이',
+      eqText2: `해류 나선 높이장:  H(r, a, t) = Swell(p, Ψ) + A·sin(3a − 4.85 ln r − ωt − Ψ)·e^{−0.18r}\n카메라 고도각:    pitch(u) = mix(10°, 89.2°, uElevation)\n\n· uElevation = 0 (수평선 시선): 눈앞에서 넘실거리는 밤바다의 파도 능선과 수직 윤슬 기둥\n· uElevation = 1 (하늘 위 90° 시선): 같은 바다가 중심의 고요한 눈으로 감겨 드는 앵무조개 소용돌이로 투영`,
+      modalNote: '이 수식은 밤바다 셰이더의 해류·부표·싱잉볼 맥놀이를 조율하기 위해 시안이 작성한 예술적 악보이며, 실제 물리 해양학이나 인간 심리의 검증 모델이 아닙니다.',
+      codeSummary: '실행 코드 내려받기',
+      dlHtml: 'HTML 작품 파일 내려받기',
+      dlJs: '셰이더·사운드 코드 내려받기'
+    },
+    en: {
+      sig: 'SIAN · TIDAL FIELD',
+      fold: 'Hide words',
+      unfold: 'Show words',
+      soundOn: 'Mute sea & bowls',
+      soundOff: 'Unmute sea & bowls',
+      behind: 'Reverse side (Score) ↗',
+      sub: 'BUSAN NIGHT TIDE · V4.1',
+      title: 'Tidal Lag —\nOn the Current, From Above',
+      body: 'When the ocean current turns, each lantern buoy takes its own time to swing around.\nOnly while it lags behind does a white Kelvin bow-wake bloom against the tide;\nlift your gaze to the sky above, and the rolling waves fold into a single Nautilus whirlpool.',
+      unlock: 'Open sea & singing-bowl sound ↗',
+      hint: 'Drag horizontally across the water to turn the tide, or drag vertically between horizon (0°) and sky (90°).',
+      horizon: 'Horizon gaze (0°)',
+      zenith: 'Overhead whirlpool (90°)',
+      shift: 'Turn the tide',
+      anchorOff: 'Fixed breakwater grid',
+      anchorOn: 'Ride with the tide',
+      modalTitle: 'Reverse side · Sian’s Tidal & Beating-Bowl Note',
+      modalH2: 'Tidal Lag — On the Current, From Above',
+      modalP1: 'Unlike the earlier forest-ribbon or cloth-membrane studies, this piece is built from Sian’s own natural phenomenon—the night tide of Busan, floating glass lantern buoys, and an overhead Nautilus whirlpool—rendered via a full-screen GPU raymarched ocean and subsurface-scattering shader.',
+      modalP2: 'When the sea current (Ψ) turns, the seven floating buoys do not snap at once to their new equilibrium. Nimble cyan buoys turn first, while heavy amber buoys hold their old course a little longer. During that adaptation lag, the current rushing past each buoy raises a glowing V-shaped Kelvin bow-wake; once the buoy settles into the new current, the wake calms into stillness.',
+      modalP3: 'The sound uses Sian’s harmonic-beating singing-bowl synthesizer: while a buoy is still adapting (|dφ/dt| > 0), its paired oscillators detune to create a warm acoustic beat; as it reaches its new equilibrium (φ*), the beating resolves into pure consonance.',
+      volLabel: 'Sea & singing-bowl volume',
+      scoreSummary: 'Mathematical score of tide, wake, and beating (v4.1)',
+      eqH1: '1. Tidal turn, Kelvin bow-wake, and acoustic beating',
+      eqText1: `φ_i(t) = θ_i(t) − Ψ(C_t)\n\n dφ_i / dt = Δω_i(C_t) − K_i(C_t) · sin(φ_i)\n\nWake_i(t) ∝ |dφ_i / dt| ,   Δf_beat,i(t) = 0.15 Hz + 4.2 · |dφ_i / dt|`,
+      eqH2: '2. Horizon swell (0°) to Overhead Nautilus maelstrom (90°)',
+      eqText2: `H(r, a, t) = Swell(p, Ψ) + A·sin(3a − 4.85 ln r − ωt − Ψ)·e^{−0.18r}\npitch(u) = mix(10°, 89.2°, uElevation)`,
+      modalNote: 'These equations serve as Sian’s artistic score for the ocean shader and singing-bowl synthesizer, not a verified physical or psychological proof.',
+      codeSummary: 'Download runtime code',
+      dlHtml: 'Download HTML artwork',
+      dlJs: 'Download shader & audio JS'
+    }
+  };
+
+  function syncUI() {
+    const w = TEXT[lang];
+    document.documentElement.lang = lang;
+    document.body.dataset.lang = lang;
+    $('#sigText').textContent = w.sig;
+    $('#foldBtn').textContent = folded ? w.unfold : w.fold;
+    $('#foldBtn').setAttribute('aria-pressed', String(folded));
+
+    const soundActive = audio.enabled && !audio.blocked;
+    $('#soundBtn').textContent = soundActive ? w.soundOn : w.soundOff;
+    $('#soundBtn').setAttribute('aria-pressed', String(soundActive));
+    $('#soundUnlockPill').textContent = w.unlock;
+    $('#soundUnlockPill').hidden = !(audio.enabled && audio.blocked);
+
+    $('#behindBtn').textContent = w.behind;
+    $('#poemSub').textContent = w.sub;
+    $('#poemTitle').textContent = w.title;
+    $('#poemBody').textContent = w.body;
+    $('#gestureHint').textContent = w.hint;
+
+    const isZenith = targetElevation > 0.5;
+    $('#gazeHorizonBtn').textContent = w.horizon;
+    $('#gazeHorizonBtn').setAttribute('aria-pressed', String(!isZenith));
+    $('#gazeZenithBtn').textContent = w.zenith;
+    $('#gazeZenithBtn').setAttribute('aria-pressed', String(isZenith));
+    $('#tideShiftBtn').textContent = w.shift;
+    $('#anchorBtn').textContent = anchorMode ? w.anchorOn : w.anchorOff;
+    $('#anchorBtn').setAttribute('aria-pressed', String(anchorMode));
+
+    $('#modalTitle').textContent = w.modalTitle;
+    $('#modalH2').textContent = w.modalH2;
+    $('#modalP1').textContent = w.modalP1;
+    $('#modalP2').textContent = w.modalP2;
+    $('#modalP3').textContent = w.modalP3;
+    $('#volLabel').textContent = w.volLabel;
+    $('#scoreSummary').textContent = w.scoreSummary;
+    $('#eqH1').textContent = w.eqH1;
+    $('#eqText1').textContent = w.eqText1;
+    $('#eqH2').textContent = w.eqH2;
+    $('#eqText2').textContent = w.eqText2;
+    $('#modalNote').textContent = w.modalNote;
+    $('#codeSummary').textContent = w.codeSummary;
+    $('#dlHtmlBtn').textContent = w.dlHtml;
+    $('#dlJsBtn').textContent = w.dlJs;
+
+    $('#langKo').setAttribute('aria-pressed', String(lang === 'ko'));
+    $('#langEn').setAttribute('aria-pressed', String(lang === 'en'));
+  }
+
+  async function ensureAudio() {
+    if (audio.enabled && (audio.blocked || !audio.ctx || audio.ctx.state !== 'running')) {
+      await audio.start();
+      syncUI();
+    }
+  }
+
+  // Pointer interaction on the sea:
+  // - Vertical drag smoothly lifts camera between 0° Horizon and 90° Overhead Nautilus Whirlpool
+  // - Horizontal drag pushes the tidal current Ψ(C_t) and orbits the view
+  // - Tap sends a circular wave & triggers the delayed singing-bowl canon
+  let drag = null;
+  canvas.addEventListener('pointerdown', async e => {
+    await ensureAudio();
+    try { canvas.setPointerCapture(e.pointerId); } catch {}
+    drag = {
+      id: e.pointerId,
+      x: e.clientX,
+      y: e.clientY,
+      moved: 0,
+      el: targetElevation,
+      az: targetAzimuth
+    };
+    const wx = ((e.clientX / innerWidth) - 0.5) * 4.5;
+    const wz = ((e.clientY / innerHeight) - 0.5) * 4.5;
+    ripple.set([wx, wz, time, 0.95]);
+  });
+
+  canvas.addEventListener('pointermove', e => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const dx = e.clientX - drag.x;
+    const dy = e.clientY - drag.y;
+    drag.moved = Math.max(drag.moved, Math.hypot(dx, dy));
+    targetElevation = clamp(drag.el - dy / (innerHeight * 0.55), 0.02, 0.99);
+    targetAzimuth = drag.az - dx * 0.0045;
+    syncUI();
+  });
+
+  function endPointer(e) {
+    if (!drag || (e.pointerId !== undefined && drag.id !== e.pointerId)) return;
+    const dx = e.clientX - drag.x;
+    if (drag.moved < 10) {
+      shiftTide(0.95);
+    } else if (Math.abs(dx) > 45) {
+      // A wide horizontal sweep across the sea turns the tidal current!
+      shiftTide(dx * 0.006);
+    }
+    drag = null;
+    try { canvas.releasePointerCapture(e.pointerId); } catch {}
+  }
+  canvas.addEventListener('pointerup', endPointer);
+  canvas.addEventListener('pointercancel', () => { drag = null; });
+
+  // Controls
+  $('#soundUnlockPill').onclick = async () => {
+    audio.enabled = true;
+    await ensureAudio();
+  };
+  $('#soundBtn').onclick = async () => {
+    if (audio.enabled && !audio.blocked) {
+      audio.enabled = false;
+      await audio.stop();
+    } else {
+      audio.enabled = true;
+      await audio.start();
+    }
+    syncUI();
+  };
+  $('#foldBtn').onclick = () => {
+    folded = !folded;
+    document.body.classList.toggle('folded', folded);
+    syncUI();
+  };
+  $('#gazeHorizonBtn').onclick = async () => {
+    await ensureAudio();
+    targetElevation = 0.08;
+    syncUI();
+  };
+  $('#gazeZenithBtn').onclick = async () => {
+    await ensureAudio();
+    targetElevation = 0.98;
+    syncUI();
+  };
+  $('#tideShiftBtn').onclick = async () => {
+    await ensureAudio();
+    shiftTide();
+  };
+  $('#anchorBtn').onclick = async () => {
+    await ensureAudio();
+    anchorMode = !anchorMode;
+    syncUI();
+  };
+  $('#langKo').onclick = () => { lang = 'ko'; syncUI(); };
+  $('#langEn').onclick = () => { lang = 'en'; syncUI(); };
+
+  const modal = $('#behindModal');
+  $('#behindBtn').onclick = () => modal.showModal();
+  $('#closeModal').onclick = () => modal.close();
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      const r = modal.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) {
+        modal.close();
+      }
+    }
+  });
+
+  $('#volSlider').oninput = e => {
+    const v = Number(e.target.value);
+    $('#volOut').textContent = v + '%';
+    audio.setVolume(v / 100);
+  };
+
+  const jsSource = $('#sian-code').textContent.trim();
+  $('#codePreview').textContent = jsSource;
+  function downloadBlob(name, text, type) {
+    const url = URL.createObjectURL(new Blob([text], { type }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2500);
+  }
+  $('#dlHtmlBtn').onclick = () => downloadBlob('조류의_시차_물결_위에서_위에서_시안.html', originalHTML, 'text/html');
+  $('#dlJsBtn').onclick = () => downloadBlob('sian_tidal_lag.js', jsSource, 'text/javascript');
+
+  // --- 5. Main Render & ODE Loop ---
+  let anchorBlend = 0;
+  function frame(now) {
+    const dt = lastTs ? Math.min(0.05, (now - lastTs) / 1000) : 1 / 60;
+    lastTs = now;
+    time += dt;
+
+    const ease = 1 - Math.exp(-dt * 3.6);
+    elevation = mix(elevation, targetElevation, ease);
+    azimuth = mix(azimuth, targetAzimuth, ease);
+    psi = mix(psi, targetPsi + 0.12 * Math.sin(time * 0.18), 1 - Math.exp(-dt * 1.8));
+    anchorBlend = mix(anchorBlend, anchorMode ? 1.0 : 0.0, 1 - Math.exp(-dt * 3.0));
+
+    // Integrate each buoy's v4.1 ODE: dφ_i/dt = Δω_i(C_t) - K_i * sin(φ_i)
+    let totalWakeEnergy = 0;
+    for (let i = 0; i < buoys.length; i++) {
+      const b = buoys[i];
+      const dPhi = b.deltaOmega - b.K * Math.sin(b.phi);
+      b.dPhi = dPhi;
+      b.phi += dPhi * dt * 0.92;
+      totalWakeEnergy += Math.abs(dPhi);
+
+      // Slowly orbit along the Nautilus spiral while maintaining relative phase φ_i to the tide Ψ
+      b.baseAngle += dt * (0.11 / Math.sqrt(b.radius));
+      b.worldAngle = b.baseAngle + b.phi;
+
+      let wx = b.radius * Math.cos(b.worldAngle);
+      let wz = b.radius * Math.sin(b.worldAngle);
+      if (anchorBlend > 0.01) {
+        // Ptolemaic epicycle loops when viewed from the rigid breakwater
+        wx += 0.28 * anchorBlend * Math.cos(time * 2.4 + i);
+        wz += 0.28 * anchorBlend * Math.sin(time * 2.4 + i);
+      }
+      buoyUniformData.set([wx, wz, Math.abs(dPhi), psi + b.phi], i * 4);
+    }
+
+    audio.update(time, buoys, elevation, clamp(totalWakeEnergy * 0.25, 0, 1));
+
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.useProgram(prog);
+    gl.uniform2f(U['uRes'], canvas.width, canvas.height);
+    gl.uniform1f(U['uTime'], time);
+    gl.uniform1f(U['uElevation'], elevation);
+    gl.uniform1f(U['uAzimuth'], azimuth);
+    gl.uniform1f(U['uPsi'], psi);
+    gl.uniform1f(U['uAnchorMode'], anchorBlend);
+    gl.uniform4fv(U['uBuoys[0]'], buoyUniformData);
+    gl.uniform3fv(U['uBuoyCols[0]'], buoyColorData);
+    gl.uniform4fv(U['uRipple'], ripple);
+
+    gl.bindVertexArray(quadVao);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    requestAnimationFrame(frame);
+  }
+
+  audio.start().then(() => syncUI()).catch(() => { audio.blocked = true; syncUI(); });
+  syncUI();
+  setTimeout(() => $('#gestureHint').classList.add('dim'), 12000);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
