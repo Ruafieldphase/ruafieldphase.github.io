@@ -402,7 +402,7 @@ pre.source{
   </div>
   <div class="top-actions">
     <button id="foldBtn" type="button" aria-pressed="false">글 숨기기</button>
-    <button id="soundBtn" type="button" aria-pressed="true">파도·싱잉볼 닫기</button>
+    <button id="soundBtn" type="button" aria-pressed="false">파도·싱잉볼 열기</button>
     <button id="behindBtn" type="button" aria-haspopup="dialog">뒤편 (수식·악보) ↗</button>
     <div class="lang-switch" role="group" aria-label="Language">
       <button id="langKo" type="button" aria-pressed="true">KR</button>
@@ -490,19 +490,34 @@ pre.source{
       this.surfFilter = null;
       this.surfGain = null;
       this.bowls = [];
-      this.enabled = true;
+      this.nodes = [];
+      this.sources = [];
+      this.enabled = false;
       this.blocked = false;
       this.volume = 0.48;
       // Warm oceanic Lydian-9th tuning (F2, C3, G3, A3, D4, E4, B4)
       this.baseFreqs = [87.31, 130.81, 196.00, 220.00, 293.66, 329.63, 493.88];
     }
 
+    _keepNode(n) {
+      this.nodes.push(n);
+      return n;
+    }
+
+    _keepSource(s) {
+      this.sources.push(s);
+      this.nodes.push(s);
+      return s;
+    }
+
     _build() {
       const c = this.ctx;
-      const master = c.createGain();
-      master.gain.value = 0.0001;
+      this.nodes = [];
+      this.sources = [];
+      const master = this._keepNode(c.createGain());
+      master.gain.value = 0;
 
-      const comp = c.createDynamicsCompressor();
+      const comp = this._keepNode(c.createDynamicsCompressor());
       comp.threshold.value = -14;
       comp.knee.value = 8;
       comp.ratio.value = 4.5;
@@ -510,7 +525,7 @@ pre.source{
       comp.release.value = 0.4;
 
       // Algorithmic ocean-cavern stereo reverb (3.6s)
-      const conv = c.createConvolver();
+      const conv = this._keepNode(c.createConvolver());
       const irLen = Math.floor(c.sampleRate * 3.6);
       const ir = c.createBuffer(2, irLen, c.sampleRate);
       let seed = 409611;
@@ -527,12 +542,12 @@ pre.source{
       }
       conv.buffer = ir;
 
-      const dry = c.createGain();
-      const wet = c.createGain();
+      const dry = this._keepNode(c.createGain());
+      const wet = this._keepNode(c.createGain());
       dry.gain.value = 0.72;
       wet.gain.value = 0.48;
 
-      const bus = c.createGain();
+      const bus = this._keepNode(c.createGain());
       bus.connect(dry);
       bus.connect(conv);
       conv.connect(wet);
@@ -556,14 +571,14 @@ pre.source{
           nd[i] = (b0 + b1 + b2) * 0.24;
         }
       }
-      const surfSrc = c.createBufferSource();
+      const surfSrc = this._keepSource(c.createBufferSource());
       surfSrc.buffer = nBuf;
       surfSrc.loop = true;
-      const surfFilter = c.createBiquadFilter();
+      const surfFilter = this._keepNode(c.createBiquadFilter());
       surfFilter.type = 'bandpass';
       surfFilter.frequency.value = 260;
       surfFilter.Q.value = 0.85;
-      const surfGain = c.createGain();
+      const surfGain = this._keepNode(c.createGain());
       surfGain.gain.value = 0.09;
       surfSrc.connect(surfFilter);
       surfFilter.connect(surfGain);
@@ -571,26 +586,22 @@ pre.source{
       surfSrc.start();
 
       // 2) 7 Singing-Bowl Pair Resonators (one for each floating buoy)
-      // Each buoy has a primary sine + a companion harmonic oscillator whose detuning
-      // equals the buoy's instantaneous phase lag |dφ/dt| * 4.5 Hz!
-      // When the buoy is adapting to a new tide, you hear a warm singing-bowl beat (맥놀이);
-      // when it settles into equilibrium, the two oscillators lock into pure consonance!
       this.bowls = [];
       for (let i = 0; i < 7; i++) {
         const f = this.baseFreqs[i];
-        const oscA = c.createOscillator();
-        const oscB = c.createOscillator();
-        const overtone = c.createOscillator();
-        const gMain = c.createGain();
-        const gOver = c.createGain();
-        const pan = c.createStereoPanner();
+        const oscA = this._keepSource(c.createOscillator());
+        const oscB = this._keepSource(c.createOscillator());
+        const overtone = this._keepSource(c.createOscillator());
+        const gMain = this._keepNode(c.createGain());
+        const gOver = this._keepNode(c.createGain());
+        const pan = this._keepNode(c.createStereoPanner());
 
         oscA.type = 'sine';
         oscB.type = 'sine';
         overtone.type = 'triangle';
         oscA.frequency.value = f;
         oscB.frequency.value = f + 0.4;
-        overtone.frequency.value = f * 2.756; // singing bowl 1st overtone mode
+        overtone.frequency.value = f * 2.756;
 
         const baseLevel = (0.042 / (1 + i * 0.18));
         gMain.gain.value = baseLevel;
@@ -616,29 +627,52 @@ pre.source{
       this.surfGain = surfGain;
     }
 
+    _dispose() {
+      for (const s of this.sources) {
+        try { s.stop(); } catch (e) {}
+      }
+      for (const n of this.nodes) {
+        try { n.disconnect(); } catch (e) {}
+      }
+      this.sources = [];
+      this.nodes = [];
+      this.bowls = [];
+      this.bus = null;
+      this.master = null;
+      this.surfFilter = null;
+      this.surfGain = null;
+    }
+
     async start() {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return false;
-      if (!this.ctx) {
+      if (!this.ctx || this.ctx.state === 'closed') {
         this.ctx = new AC({ latencyHint: 'interactive' });
+      }
+      if (!this.master) {
         this._build();
       }
       try { await this.ctx.resume(); } catch (e) {}
       this.blocked = this.ctx.state !== 'running';
-      if (!this.blocked && this.enabled) {
-        this.master.gain.setTargetAtTime(this.volume, this.ctx.currentTime, 0.25);
+      if (!this.blocked && this.enabled && this.master) {
+        const now = this.ctx.currentTime;
+        this.master.gain.cancelScheduledValues(now);
+        this.master.gain.setTargetAtTime(this.volume, now, 0.25);
       }
       return !this.blocked;
     }
 
     async stop() {
-      if (!this.ctx || !this.master) return;
-      this.master.gain.setTargetAtTime(0.0001, this.ctx.currentTime, 0.12);
-      setTimeout(() => {
-        if (!this.enabled && this.ctx && this.ctx.state === 'running') {
-          this.ctx.suspend().catch(() => {});
-        }
-      }, 240);
+      this.enabled = false;
+      this.blocked = false;
+      this._dispose();
+      if (this.ctx) {
+        const c = this.ctx;
+        this.ctx = null;
+        try {
+          if (c.state !== 'closed') await c.close();
+        } catch (e) {}
+      }
     }
 
     setVolume(v) {
@@ -650,16 +684,16 @@ pre.source{
 
     // Play a water-drop / singing-bowl strike delayed canon when the tide turns!
     strikeTideCanon(buoys) {
-      if (!this.ctx || this.ctx.state !== 'running' || !this.enabled) return;
+      if (!this.ctx || this.ctx.state !== 'running' || !this.enabled || !this.bus) return;
       const now = this.ctx.currentTime;
       // Each buoy chimes at a delay proportional to its inertia (1 / K_i),
       // so nimble buoys chime immediately and heavy amber buoys chime up to 1.8s later!
       buoys.forEach((b, i) => {
         const delay = 0.04 + (1.65 - b.K) * 1.15 + i * 0.08;
-        const osc = this.ctx.createOscillator();
-        const flt = this.ctx.createBiquadFilter();
-        const gn = this.ctx.createGain();
-        const pan = this.ctx.createStereoPanner();
+        const osc = this._keepSource(this.ctx.createOscillator());
+        const flt = this._keepNode(this.ctx.createBiquadFilter());
+        const gn = this._keepNode(this.ctx.createGain());
+        const pan = this._keepNode(this.ctx.createStereoPanner());
 
         const f = this.baseFreqs[i % this.baseFreqs.length] * 2.0;
         osc.type = 'sine';
@@ -1189,10 +1223,9 @@ pre.source{
   // Pointer interaction on the sea:
   // - Vertical drag smoothly lifts camera between 0° Horizon and 90° Overhead Nautilus Whirlpool
   // - Horizontal drag pushes the tidal current Ψ(C_t) and orbits the view
-  // - Tap sends a circular wave & triggers the delayed singing-bowl canon
+  // - Tap sends a circular wave & triggers the delayed singing-bowl canon (only if sound is enabled)
   let drag = null;
-  canvas.addEventListener('pointerdown', async e => {
-    await ensureAudio();
+  canvas.addEventListener('pointerdown', e => {
     try { canvas.setPointerCapture(e.pointerId); } catch {}
     drag = {
       id: e.pointerId,
@@ -1232,14 +1265,14 @@ pre.source{
   canvas.addEventListener('pointerup', endPointer);
   canvas.addEventListener('pointercancel', () => { drag = null; });
 
-  // Controls
+  // Controls: Sound ONLY turns on/off when explicitly clicking the sound button
   $('#soundUnlockPill').onclick = async () => {
     audio.enabled = true;
-    await ensureAudio();
+    await audio.start();
+    syncUI();
   };
   $('#soundBtn').onclick = async () => {
     if (audio.enabled && !audio.blocked) {
-      audio.enabled = false;
       await audio.stop();
     } else {
       audio.enabled = true;
@@ -1252,27 +1285,33 @@ pre.source{
     document.body.classList.toggle('folded', folded);
     syncUI();
   };
-  $('#gazeHorizonBtn').onclick = async () => {
-    await ensureAudio();
+  $('#gazeHorizonBtn').onclick = () => {
     targetElevation = 0.08;
     syncUI();
   };
-  $('#gazeZenithBtn').onclick = async () => {
-    await ensureAudio();
+  $('#gazeZenithBtn').onclick = () => {
     targetElevation = 0.98;
     syncUI();
   };
-  $('#tideShiftBtn').onclick = async () => {
-    await ensureAudio();
+  $('#tideShiftBtn').onclick = () => {
     shiftTide();
   };
-  $('#anchorBtn').onclick = async () => {
-    await ensureAudio();
+  $('#anchorBtn').onclick = () => {
     anchorMode = !anchorMode;
     syncUI();
   };
   $('#langKo').onclick = () => { lang = 'ko'; syncUI(); };
   $('#langEn').onclick = () => { lang = 'en'; syncUI(); };
+
+  // Auto-stop and dispose audio when tab/iframe is hidden or unloaded (matches Rua's Cloudflare works)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && audio.enabled) {
+      audio.stop().then(() => syncUI());
+    }
+  });
+  window.addEventListener('pagehide', () => {
+    audio.stop();
+  });
 
   const modal = $('#behindModal');
   $('#behindBtn').onclick = () => modal.showModal();
@@ -1360,7 +1399,7 @@ pre.source{
     requestAnimationFrame(frame);
   }
 
-  audio.start().then(() => syncUI()).catch(() => { audio.blocked = true; syncUI(); });
+  // Start muted by default in Antigravity so background audio never plays unexpectedly
   syncUI();
   setTimeout(() => $('#gestureHint').classList.add('dim'), 12000);
   requestAnimationFrame(frame);
