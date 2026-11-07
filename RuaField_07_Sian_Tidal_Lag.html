@@ -652,8 +652,12 @@ pre.source{
       if (!this.master) {
         this._build();
       }
-      try { await this.ctx.resume(); } catch (e) {}
-      this.blocked = this.ctx.state !== 'running';
+      const context = this.ctx;
+      this.blocked = context.state !== 'running';
+      try { await context.resume(); } catch (e) {}
+      // A mute or hidden-tab disposal may finish while resume is pending.
+      if (this.ctx !== context || !this.enabled) return false;
+      this.blocked = context.state !== 'running';
       if (!this.blocked && this.enabled && this.master) {
         const now = this.ctx.currentTime;
         this.master.gain.cancelScheduledValues(now);
@@ -1054,6 +1058,13 @@ pre.source{
   buoys.forEach((b, i) => buoyColorData.set(b.color, i * 3));
 
   const audio = new SianTidalAudio();
+  const muteKey = 'ruafield:sian:tidal:muted';
+  let soundWanted = true;
+  try { soundWanted = localStorage.getItem(muteKey) !== 'yes'; } catch {}
+  function rememberSound(wanted) {
+    soundWanted = wanted;
+    try { localStorage.setItem(muteKey, wanted ? 'no' : 'yes'); } catch {}
+  }
 
   let lang = 'ko';
   let folded = false;
@@ -1214,11 +1225,25 @@ pre.source{
   }
 
   async function ensureAudio() {
-    if (audio.enabled && (audio.blocked || !audio.ctx || audio.ctx.state !== 'running')) {
-      await audio.start();
+    if (!soundWanted || document.hidden) return;
+    audio.enabled = true;
+    if (audio.blocked || !audio.ctx || audio.ctx.state !== 'running') {
+      const pending = audio.start();
+      // Show the unlock prompt immediately, even if autoplay resume stays pending.
+      syncUI();
+      try { await pending; } catch { if (audio.enabled) audio.blocked = true; }
       syncUI();
     }
   }
+  // Retry inside a real gesture if the browser blocked audible autoplay.
+  document.addEventListener('pointerdown', e => {
+    if (!e.target.closest('#soundBtn, #soundUnlockPill')) void ensureAudio();
+  });
+  document.addEventListener('click', () => { void ensureAudio(); });
+  document.addEventListener('keydown', e => {
+    if (!e.repeat && !e.ctrlKey && !e.metaKey && !e.altKey &&
+        !e.target.closest('#soundBtn, #soundUnlockPill')) void ensureAudio();
+  });
 
   // Pointer interaction on the sea:
   // - Vertical drag smoothly lifts camera between 0° Horizon and 90° Overhead Nautilus Whirlpool
@@ -1265,18 +1290,19 @@ pre.source{
   canvas.addEventListener('pointerup', endPointer);
   canvas.addEventListener('pointercancel', () => { drag = null; });
 
-  // Controls: Sound ONLY turns on/off when explicitly clicking the sound button
+  // Sound is opt-out. Only an explicit sound action changes the saved preference.
   $('#soundUnlockPill').onclick = async () => {
-    audio.enabled = true;
-    await audio.start();
+    rememberSound(true);
+    await ensureAudio();
     syncUI();
   };
   $('#soundBtn').onclick = async () => {
-    if (audio.enabled && !audio.blocked) {
+    if (soundWanted && audio.enabled && !audio.blocked) {
+      rememberSound(false);
       await audio.stop();
     } else {
-      audio.enabled = true;
-      await audio.start();
+      rememberSound(true);
+      await ensureAudio();
     }
     syncUI();
   };
@@ -1303,15 +1329,16 @@ pre.source{
   $('#langKo').onclick = () => { lang = 'ko'; syncUI(); };
   $('#langEn').onclick = () => { lang = 'en'; syncUI(); };
 
-  // Auto-stop and dispose audio when tab/iframe is hidden or unloaded (matches Rua's Cloudflare works)
+  // Pause and dispose while hidden without turning an automatic pause into a saved mute.
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && audio.enabled) {
-      audio.stop().then(() => syncUI());
+    if (document.hidden) {
+      void audio.stop().then(() => syncUI());
+    } else {
+      void ensureAudio();
     }
   });
-  window.addEventListener('pagehide', () => {
-    audio.stop();
-  });
+  window.addEventListener('pagehide', () => { void audio.stop(); });
+  window.addEventListener('pageshow', () => { void ensureAudio(); });
 
   const modal = $('#behindModal');
   $('#behindBtn').onclick = () => modal.showModal();
@@ -1399,8 +1426,9 @@ pre.source{
     requestAnimationFrame(frame);
   }
 
-  // Start muted by default in Antigravity so background audio never plays unexpectedly
+  // Default to the continuous sea and singing bowls; respect an explicit saved mute.
   syncUI();
+  void ensureAudio();
   setTimeout(() => $('#gestureHint').classList.add('dim'), 12000);
   requestAnimationFrame(frame);
 })();
