@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="theme-color" content="#eeeae1"><meta name="description" content="RuaField · Elsewhere, Slowly. A private interactive ink study with opt-out overlapping sound, light observer contact and a subtle pigment-layer view. No external requests.">
-<title>다른 쪽으로 · RuaField 03α.3 — 겹치는 소리와 시선</title>
+<title>다른 쪽으로 · RuaField 03α.4 — 가까이, 멀리</title>
 <style>
 :root{--paper:#eeeae1;--ink:#34443e;--quiet:#747b6f;--fine:#b7b8a93f;--warm:#9b7353}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--paper);color:var(--ink)}body{font:400 12px/1.7 'Noto Sans CJK KR','Malgun Gothic',sans-serif}button,input{font:inherit;color:inherit}button{background:none;border:0;cursor:pointer;padding:10px 0;touch-action:manipulation}button:hover{color:#131f1a}button:focus-visible,summary:focus-visible,a:focus-visible,canvas:focus-visible{outline:1px solid var(--warm);outline-offset:5px}[hidden]{display:none!important}a{color:inherit;text-underline-offset:4px}
 #field{position:fixed;inset:0;width:100%;height:100%;touch-action:none;outline-offset:-5px}header{position:fixed;z-index:3;top:25px;left:5vw;right:5vw;display:flex;justify-content:space-between;align-items:center;gap:20px;font-size:10px;letter-spacing:.08em}.brand{font:12px Georgia,serif;letter-spacing:.18em;display:flex;align-items:center;gap:17px}.seed{width:13px;height:13px;border:1px solid #677b6b96;border-radius:42% 58% 57% 43%;transform:rotate(-24deg)}.brand small{font:10px Georgia,serif;color:var(--quiet);letter-spacing:.02em}.tools{display:flex;align-items:center;gap:25px}.tools button{font-size:10px}.language{display:flex;gap:11px}.language button{color:#929a8d}.language button[aria-pressed=true]{color:#34443e}
@@ -11,16 +11,23 @@ footer{position:fixed;z-index:3;left:7.4vw;right:7.4vw;bottom:28px;display:flex;
 dialog{padding:0;width:min(780px,92vw);max-height:88dvh;color:var(--ink);background:#f4f0e7;border:1px solid #b4b8a25f;box-shadow:0 25px 100px #24342a30}dialog::backdrop{background:#383e334d;backdrop-filter:blur(6px)}.dialog-head{display:flex;justify-content:space-between;align-items:center;padding:16px 25px;border-bottom:1px solid var(--fine);position:sticky;top:0;background:#f4f0e7f7;font-size:11px}.dialog-head button{font-size:23px;padding:0 9px}.sheet{padding:22px 30px 34px;font-size:12px;line-height:1.95}.sheet h2{font:400 26px/1.4 Batang,Georgia,serif;margin:0 0 20px;letter-spacing:-.03em}.sheet p{max-width:63ch;color:#697261}.sheet .quiet{font-size:10px;color:#848875}.sheet details{margin-top:20px;padding-top:15px;border-top:1px solid var(--fine)}summary{cursor:pointer;padding:4px 0}.score{white-space:pre-wrap;font:11px/1.9 monospace;background:#e9e7dc;padding:17px}.source{white-space:pre;font:10px/1.75 monospace;overflow:auto;max-height:270px;background:#e6e5d9;padding:15px;color:#53604f}.downloads{display:flex;gap:18px;flex-wrap:wrap;margin:15px 0}.downloads button{font-size:11px;border-bottom:1px solid #8d937752}#viewPanel{position:fixed;right:7.4vw;bottom:87px;z-index:5;width:min(300px,85vw);background:#f6f2eaeF;border:1px solid #b0aea079;border-radius:6px;padding:14px 18px 11px;box-shadow:0 12px 38px #373d3220;color:#58645a;font-size:11px;line-height:1.6;backdrop-filter:blur(5px)}#viewPanel label{display:block}#viewValue{float:right;color:#34443e;font:italic 12px Georgia,serif}.view-row{display:flex;align-items:center;gap:17px;margin-top:9px}.view-row input{min-width:0;flex:1;accent-color:#8b937e}.view-row button{padding:4px 0;flex:0 0 auto;font-size:11px}footer #view[aria-expanded=true]{color:#7e6451}.sound-status{position:fixed;left:7.4vw;bottom:119px;z-index:3;color:#896f5c;font-size:10px}.listening{color:#9a6b56}footer #sound[aria-pressed=true]{color:#825c44}footer #sound:disabled{opacity:.4}.error{position:fixed;inset:35% 12%;z-index:10;background:var(--paper);line-height:2}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 @media(max-width:760px){header{left:6vw;right:6vw;top:15px;gap:12px}.brand{gap:11px;font-size:10px}.brand small{display:none}.tools{gap:15px}.tools button{font-size:9px}.title{left:8vw;top:16%}h1{font-size:43px}.folio{font-size:10px;margin-bottom:16px}.lede{font-size:11px;margin-top:15px}.title::after{display:none}body[data-lang=en] h1{font-size:41px}body[data-lang=en] .lede{font-size:13px}footer{left:8vw;right:8vw;bottom:27px;gap:23px;font-size:10px}#hint{left:8vw;right:8vw;bottom:83px;font-size:9px;max-width:275px}.colophon{font-size:9px}#viewPanel{right:8vw;bottom:77px;width:min(300px,84vw)}.sound-status{left:8vw;bottom:113px;font-size:9px}footer{gap:15px}footer #sound{min-width:87px}.colophon{display:none}.sheet{padding:18px 22px 28px}.dialog-head{padding:14px 20px}.sheet h2{font-size:23px}.seed{width:10px;height:10px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* 03a4: camera transforms only the artwork, never the fixed reading tools. */
+#zoomTools{position:fixed;z-index:4;right:5vw;top:78px;display:flex;align-items:center;gap:4px;padding:3px 8px;background:#f4f0e7e8;border:1px solid #b4b8a26b;border-radius:5px;backdrop-filter:blur(5px);font-size:11px;color:#687566}
+#zoomTools button{min-width:32px;min-height:36px;padding:4px 7px;border-radius:3px}#zoomTools button:disabled{opacity:.32;cursor:default}#zoomTools button[aria-pressed=true]{background:#d9dece;color:#34443e}#zoomValue{min-width:44px;text-align:center;font-variant-numeric:tabular-nums}#zoomHelp{position:fixed;right:5vw;top:128px;z-index:3;max-width:290px;text-align:right;font-size:9px;line-height:1.8;color:#7c8572;pointer-events:none}.folded #zoomHelp{opacity:0}#field[data-pan=true]{cursor:grab}#field[data-panning=true]{cursor:grabbing}
+@media(max-width:760px){#zoomTools{right:6vw;top:59px;gap:0;padding:2px 5px;font-size:10px}#zoomTools button{min-height:36px;min-width:29px;padding:3px 6px}#zoomHelp{right:6vw;top:108px;max-width:250px;font-size:9px}.title{top:21%}}
 </style>
 </head>
 <body data-lang="ko">
-<canvas id="field" tabindex="0" aria-label="커서를 움직이면 가는 선들이 서로 다르게 반응하고, 클릭하면 의도가 닿은 자리에서 잠시 변화가 남습니다."></canvas>
-<header><div class="brand"><span class="seed" aria-hidden="true"></span>RUAFIELD<small>03α.3 / private listening study</small></div><nav class="tools" aria-label="작품 도구"><button id="words">글 접기</button><button id="notes">뒤편</button><span class="language"><button id="ko" aria-pressed="true">KR</button><button id="en" aria-pressed="false">EN</button></span></nav></header>
+<canvas id="field" tabindex="0" aria-describedby="hint zoomHelp" aria-label="커서를 움직이면 가는 선들이 서로 다르게 반응하고, 클릭하면 의도가 닿은 자리에서 잠시 변화가 남습니다."></canvas>
+<header><div class="brand"><span class="seed" aria-hidden="true"></span>RUAFIELD<small>03α.4 / private listening study</small></div><nav class="tools" aria-label="작품 도구"><button id="words">글 접기</button><button id="notes">뒤편</button><span class="language"><button id="ko" aria-pressed="true">KR</button><button id="en" aria-pressed="false">EN</button></span></nav></header>
 <section class="title"><p class="folio">Elsewhere, Slowly</p><h1 id="title">다른 쪽으로</h1><p class="lede" id="lede">남은 선 사이로,
 아직 그어지지 않은 쪽.</p></section>
 <p id="hint">커서는 조용히 닿고 클릭은 조금 오래 남습니다. 소리가 나지 않으면 화면을 한 번 클릭하세요.</p>
 <footer><button id="pause">잠시 머물기</button><button id="sound" aria-pressed="false">겹치는 소리 열기</button><button id="view" aria-expanded="false" aria-controls="viewPanel">시선</button><button id="breeze">바람 한 번</button><span id="edition" class="colophon">overlapping lines · rua</span></footer><p id="audioStatus" class="sound-status" role="status" aria-live="polite" hidden></p>
 <div id="viewPanel" hidden role="group" aria-labelledby="viewLabel"><label id="viewLabel" for="viewRange"><span id="viewLabelText">색의 층을 바라보는 기울기</span> <output id="viewValue" for="viewRange">0°</output></label><div class="view-row"><input id="viewRange" type="range" min="-12" max="12" step="1" value="0" aria-label="색 층을 바라보는 각도"><button id="viewReset" type="button">정면</button></div></div>
+<div id="zoomTools" role="group" aria-label="작품 확대·축소"><button id="zoomOut" type="button" aria-label="작품 축소">−</button><output id="zoomValue" aria-live="polite" aria-atomic="true">100%</output><button id="zoomIn" type="button" aria-label="작품 확대">+</button><button id="zoomReset" type="button">처음</button><button id="panMode" type="button" aria-pressed="false">이동</button></div>
+<p id="zoomHelp">휠·두 손가락으로 확대 · Shift+드래그 또는 ‘이동’으로 둘러보기</p>
 <p class="error" id="error" hidden>이 브라우저에서는 화면을 그릴 수 없습니다.</p>
 <dialog id="behind" aria-labelledby="behindLabel"><div class="dialog-head"><span id="behindLabel">뒤편</span><button id="close" aria-label="뒤편 닫기">×</button></div><div class="sheet"><h2 id="noteTitle">다른 쪽으로</h2><p id="note"></p><p id="note2"></p><details><summary id="scoreLabel">움직임의 악보</summary><pre class="score" id="score"></pre><p class="quiet" id="scoreNote"></p></details><details><summary id="codeLabel">실행 코드</summary><div class="downloads"><button id="downloadHtml">작품 HTML</button><button id="downloadCode">코드</button></div><pre class="source" id="source"></pre></details><p id="privacy" class="quiet"></p></div></dialog>
 <noscript><p class="error">이 작품에는 JavaScript가 필요합니다. This work needs JavaScript.</p></noscript>
@@ -179,6 +186,9 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 let w=1,h=1,dpr=1,scale=1,origin=[0,0],time=0,frame=0,paused=reduced.matches,folded=false,lang='ko',hidden=document.hidden;
 let last=0,accum=0,drag=null,raf=0,totalGestures=0,breezeCount=0,seed=300701,autoNext=13;
 let viewAngle=0, viewTarget=0, viewPanelOpen=false;
+const camera={zoom:1,x:0,y:0,min:.5,max:4};
+let panMode=false,panDrag=null,pinch=null;
+const touches=new Map();
 const pigmentDepth=[-.95,-.29,.38,.95];
 const pigmentLayers=Array.from({length:4},()=>{const c=document.createElement('canvas');return {canvas:c,ink:c.getContext('2d')};});
 // A cursor is quiet presence. A deliberate press leaves one bounded event, not a command to every strand.
@@ -191,8 +201,27 @@ const fixedStep=1/45;
 const rand=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296};
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const mix=(a,b,q)=>a+(b-a)*q;
-const T={ko:{title:'다른 쪽으로',lede:'남은 선 사이로,\n아직 그어지지 않은 쪽.',hint:'커서가 지나가면 선들이 저마다 다르게 반응합니다. 클릭한 곳에는 조금 더 오래 남는 변화가 생깁니다.',words:'글 접기',show:'글 펼치기',notes:'뒤편',pause:'잠시 머물기',resume:'다시 흐르기',breeze:'바람 한 번',note:'03α의 색과 선이 겹치는 장면을 보존했습니다. 이 선들은 관객이 오기 전부터 각자의 리듬을 지닙니다. 커서가 조용히 가까이 오면 어떤 선은 조금 보강되고, 다른 선은 옅어지며 비껴갑니다.',note2:'선의 움직임을 그대로 두고 그 옆에 느리게 변하는 음악을 놓았습니다. 소리가 열리면 서로 다른 음들이 겹치며 맥놀이와 화성의 이동이 생깁니다. 커서와 클릭은 음을 명령하지 않고 이미 흐르는 음악의 음색과 공간을 조금 바꿉니다. 클릭이나 터치의 시작은 한 번의 국소적 의도로 받아들입니다. 그곳에서 번지는 간섭은 가까운 선을 같은 방향으로 조종하지 않고, 각자의 위상과 반응 시간에 따라 보강·상쇄·잔류가 다르게 나타납니다. 길게 끌어도 한 번의 접촉으로 남습니다. 시선 조절은 색의 층을 미세하게 어긋나게 바라보는 실험이며, 정면에서는 원래의 화면을 보존합니다.',scoreLabel:'움직임의 악보',scoreNote:'소리에서는 미세하게 다른 주파수가 겹치면서 맥놀이를 만듭니다. 시각 위상과 소리 위상의 대응은 창작적 선택입니다. 이 위상과 파동은 선과 색의 움직임을 위한 창작적 모델입니다. 인간의 마음이나 실제 물리적 위상간섭을 검증한 결과는 아닙니다.',codeLabel:'실행 코드',html:'작품 HTML',code:'코드',privacy:'비공개 초안 · 자동 재생이 허용되면 소리로 시작, 차단되면 첫 클릭·터치·키 입력으로 시작하는 합성 음악 · 외부 요청·추적·저장 없음. 구현 코드는 포함된 MIT 고지를 따릅니다. 기존 공개 작품은 변경하지 않았습니다.',label:'커서를 움직이면 가는 선들이 서로 다르게 반응하고, 클릭하면 의도가 닿은 자리에서 잠시 변화가 남습니다. 음악은 기본 시작을 시도하며, 막힐 경우 첫 클릭·터치·키 입력으로 열립니다.',sound:'음악 시작하기',mute:'소리 닫기',waiting:'소리 준비 · 한 번 눌러 주세요',soundReady:'천천히 소리가 열립니다.',soundBlocked:'음악은 첫 클릭·터치·키 입력에서 시작됩니다.',soundError:'이 브라우저에서 소리를 시작하지 못했습니다.',view:'시선',viewLabel:'색의 층을 바라보는 기울기',viewReset:'정면',close:'뒤편 닫기'},en:{title:'Elsewhere,\nSlowly',lede:'Between the lines that remain,\nsomething is still unwritten.',hint:'Move the cursor to encounter the lines. A click leaves a longer-lived disturbance in that place.',words:'Hide words',show:'Show words',notes:'Reverse side',pause:'Pause',resume:'Let it flow',breeze:'A passing current',note:'The original 03α strands and their overlapping pigments remain. They have their own currents before anyone arrives. An unnoticed encounter brightens a few lines and lets others fade or pass aside.',note2:'A slow original score begins where the browser allows; otherwise your first touch opens it. It sits beside the unchanged lines. Closely tuned partials overlap; the cursor and click gently reshape an already playing harmony, without commanding a note. A click or touch begins one local intention. It moves through nearby lines as interference, not a command: each strand reinforces, cancels, or retains a little of the encounter differently. Holding and dragging remains one event. The optional viewpoint separates pigment depths a little; the front view preserves the original.',scoreLabel:'A score for the motion',scoreNote:'Nearby frequencies create slow audible beating; linking visual and acoustic phases is an artistic choice. Phase, waves and colour are artistic processes in the ink, not a validated simulation of psychology or physical interference.',codeLabel:'Runtime code',html:'Artwork HTML',code:'Code',privacy:'Private draft · browser-synthesized music attempts default playback, then starts on first activation if blocked · no network requests, tracking or persistence. Implementation code carries the included MIT notice. Existing published works are unchanged.',label:'Ink study with optional original overlapping music. Move the cursor without clicking to observe changes, or click and touch to leave a local intention.',sound:'Begin sound',mute:'Close sound',waiting:'Sound ready · click once to start',soundReady:'The overlapping music is opening slowly.',soundBlocked:'Music starts with your first click, touch or key press.',soundError:'Sound could not start in this browser.',view:'View',viewLabel:'View through the pigment layers',viewReset:'Front',close:'Close reverse side'}};
-function local(x,y){return[(x-origin[0])/scale,(y-origin[1])/scale];}
+const T={ko:{title:'다른 쪽으로',lede:'남은 선 사이로,\n아직 그어지지 않은 쪽.',hint:'커서가 지나가면 선들이 반응합니다. 클릭·한 손가락 터치는 흔적을 남기고, 휠·두 손가락은 가까이 또는 멀리 봅니다.',words:'글 접기',show:'글 펼치기',notes:'뒤편',pause:'잠시 머물기',resume:'다시 흐르기',breeze:'바람 한 번',note:'03α의 색과 선이 겹치는 장면을 보존했습니다. 이 선들은 관객이 오기 전부터 각자의 리듬을 지닙니다. 커서가 조용히 가까이 오면 어떤 선은 조금 보강되고, 다른 선은 옅어지며 비껴갑니다.',note2:'선의 움직임을 그대로 두고 그 옆에 느리게 변하는 음악을 놓았습니다. 소리가 열리면 서로 다른 음들이 겹치며 맥놀이와 화성의 이동이 생깁니다. 커서와 클릭은 음을 명령하지 않고 이미 흐르는 음악의 음색과 공간을 조금 바꿉니다. 클릭이나 터치의 시작은 한 번의 국소적 의도로 받아들입니다. 그곳에서 번지는 간섭은 가까운 선을 같은 방향으로 조종하지 않고, 각자의 위상과 반응 시간에 따라 보강·상쇄·잔류가 다르게 나타납니다. 길게 끌어도 한 번의 접촉으로 남습니다. 시선 조절은 색의 층을 미세하게 어긋나게 바라보는 실험이며, 정면에서는 원래의 화면을 보존합니다.',scoreLabel:'움직임의 악보',scoreNote:'소리에서는 미세하게 다른 주파수가 겹치면서 맥놀이를 만듭니다. 시각 위상과 소리 위상의 대응은 창작적 선택입니다. 이 위상과 파동은 선과 색의 움직임을 위한 창작적 모델입니다. 인간의 마음이나 실제 물리적 위상간섭을 검증한 결과는 아닙니다.',codeLabel:'실행 코드',html:'작품 HTML',code:'코드',privacy:'비공개 초안 · 자동 재생이 허용되면 소리로 시작, 차단되면 첫 클릭·터치·키 입력으로 시작하는 합성 음악 · 외부 요청·추적·저장 없음. 구현 코드는 포함된 MIT 고지를 따릅니다. 기존 공개 작품은 변경하지 않았습니다.',label:'커서를 움직이면 가는 선들이 서로 다르게 반응하고, 클릭하면 의도가 닿은 자리에서 잠시 변화가 남습니다. 음악은 기본 시작을 시도하며, 막힐 경우 첫 클릭·터치·키 입력으로 열립니다.',sound:'음악 시작하기',mute:'소리 닫기',waiting:'소리 준비 · 한 번 눌러 주세요',soundReady:'천천히 소리가 열립니다.',soundBlocked:'음악은 첫 클릭·터치·키 입력에서 시작됩니다.',soundError:'이 브라우저에서 소리를 시작하지 못했습니다.',view:'시선',viewLabel:'색의 층을 바라보는 기울기',viewReset:'정면',close:'뒤편 닫기'},en:{title:'Elsewhere,\nSlowly',lede:'Between the lines that remain,\nsomething is still unwritten.',hint:'Move to encounter the lines. Click or single-touch for a trace; wheel or pinch to look closer or farther.',words:'Hide words',show:'Show words',notes:'Reverse side',pause:'Pause',resume:'Let it flow',breeze:'A passing current',note:'The original 03α strands and their overlapping pigments remain. They have their own currents before anyone arrives. An unnoticed encounter brightens a few lines and lets others fade or pass aside.',note2:'A slow original score begins where the browser allows; otherwise your first touch opens it. It sits beside the unchanged lines. Closely tuned partials overlap; the cursor and click gently reshape an already playing harmony, without commanding a note. A click or touch begins one local intention. It moves through nearby lines as interference, not a command: each strand reinforces, cancels, or retains a little of the encounter differently. Holding and dragging remains one event. The optional viewpoint separates pigment depths a little; the front view preserves the original.',scoreLabel:'A score for the motion',scoreNote:'Nearby frequencies create slow audible beating; linking visual and acoustic phases is an artistic choice. Phase, waves and colour are artistic processes in the ink, not a validated simulation of psychology or physical interference.',codeLabel:'Runtime code',html:'Artwork HTML',code:'Code',privacy:'Private draft · browser-synthesized music attempts default playback, then starts on first activation if blocked · no network requests, tracking or persistence. Implementation code carries the included MIT notice. Existing published works are unchanged.',label:'Ink study with optional original overlapping music. Move the cursor without clicking to observe changes, or click and touch to leave a local intention.',sound:'Begin sound',mute:'Close sound',waiting:'Sound ready · click once to start',soundReady:'The overlapping music is opening slowly.',soundBlocked:'Music starts with your first click, touch or key press.',soundError:'Sound could not start in this browser.',view:'View',viewLabel:'View through the pigment layers',viewReset:'Front',close:'Close reverse side'}};
+// Inverse camera maps visible contact back into the unmodified simulation.
+function paperPoint(x,y){const r=canvas.getBoundingClientRect();return [origin[0]+(x-r.left-origin[0]-camera.x)/camera.zoom,origin[1]+(y-r.top-origin[1]-camera.y)/camera.zoom];}
+function local(x,y){const p=paperPoint(x,y);return[(p[0]-origin[0])/scale,(p[1]-origin[1])/scale];}
+function cameraUI(){
+ const en=lang==='en';$('zoomValue').value=Math.round(camera.zoom*100)+'%';
+ $('zoomOut').disabled=camera.zoom<=camera.min+.00001;$('zoomIn').disabled=camera.zoom>=camera.max-.00001;
+ $('zoomTools').setAttribute('aria-label',en?'Artwork zoom':'작품 확대·축소');
+ $('zoomOut').setAttribute('aria-label',en?'Zoom out of artwork':'작품 축소');$('zoomIn').setAttribute('aria-label',en?'Zoom into artwork':'작품 확대');
+ $('zoomReset').textContent=en?'Reset':'처음';$('zoomReset').setAttribute('aria-label',en?'Reset zoom and position':'확대율과 위치 처음으로');
+ $('panMode').textContent=en?'Pan':'이동';$('panMode').setAttribute('aria-pressed',String(panMode));
+ $('zoomHelp').textContent=w<760?(en?'Pinch to zoom · Pan to explore':'두 손가락으로 확대 · ‘이동’으로 둘러보기'):(en?'Wheel / pinch to zoom · Shift-drag or Pan to explore':'휠·두 손가락으로 확대 · Shift+드래그 또는 ‘이동’으로 둘러보기');
+ canvas.dataset.pan=String(panMode);canvas.dataset.panning=String(!!panDrag||!!pinch);
+}
+function boundCamera(){camera.x=clamp(camera.x,-w*camera.zoom,w*camera.zoom);camera.y=clamp(camera.y,-h*camera.zoom,h*camera.zoom);}
+function setCameraZoom(value,x=origin[0],y=origin[1]){
+ const next=clamp(value,camera.min,camera.max),q=next/camera.zoom;
+ camera.x=x-origin[0]-(x-origin[0]-camera.x)*q;camera.y=y-origin[1]-(y-origin[1]-camera.y)*q;camera.zoom=next;
+ boundCamera();leaveObservation();cameraUI();draw();
+}
+function resetCamera(){camera.zoom=1;camera.x=0;camera.y=0;leaveObservation();cameraUI();draw();}
 function screen(x,y){return[origin[0]+x*scale,origin[1]+y*scale];}
 function replant(p,initial=false){
  const a=sources[p.source],r=Math.sqrt(rand())*.20,ang=rand()*Math.PI*2;
@@ -206,6 +235,7 @@ function init(){particles.length=0;const n=w<760?480:960;
  for(let i=0;i<n;i++){const p={id:i,source:i%5,color:rgb[(i%5)%4],phase:(i*2.399963229728653)%(Math.PI*2),residue:0};replant(p,true);particles.push(p);}
 }
 function resize(){
+ const prevW=w,prevH=h;
  const r=canvas.getBoundingClientRect(),old=document.createElement('canvas');
  const oldPigments=pigmentLayers.map(layer=>{const c=document.createElement('canvas');if(layer.canvas.width>1){c.width=layer.canvas.width;c.height=layer.canvas.height;c.getContext('2d').drawImage(layer.canvas,0,0);}return c;});
  if(trace.width>1){old.width=trace.width;old.height=trace.height;old.getContext('2d').drawImage(trace,0,0);}
@@ -216,6 +246,7 @@ function resize(){
  const mobile=w<760;origin=mobile?[w*.53,h*.62]:[w*.63,h*.53];scale=mobile?Math.min(w*.285,h*.23):Math.min(w*.235,h*.395);
  if(old.width>1)ink.drawImage(old,0,0,old.width,old.height,0,0,w,h);
  if(!particles.length)init();
+ camera.x*=w/prevW;camera.y*=h/prevH;boundCamera();leaveObservation();cameraUI();
  draw();
 }
 // An analytic drawing field, not a measured or learned model.
@@ -340,6 +371,8 @@ function draw(){
  ctx.fillStyle='#eeeae1';ctx.fillRect(0,0,w,h);
  const g=ctx.createRadialGradient(w*.62,h*.46,20,w*.62,h*.46,Math.max(w,h)*.78);
  g.addColorStop(0,'rgba(255,255,248,.64)');g.addColorStop(1,'rgba(183,181,157,.1)');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+ // Camera is applied only at composition; existing ink is not repainted or reset.
+ ctx.save();ctx.translate(origin[0]+camera.x,origin[1]+camera.y);ctx.scale(camera.zoom,camera.zoom);ctx.translate(-origin[0],-origin[1]);
  // At 0° render precisely the existing composite. Any view adjustment is opt-in.
  if(Math.abs(viewAngle)<.0001){ctx.drawImage(trace,0,0,trace.width,trace.height,0,0,w,h);}
  else{
@@ -356,6 +389,7 @@ function draw(){
   }
  }
 
+ ctx.restore();
  if(drag){ctx.beginPath();ctx.arc(drag.sx,drag.sy,3,0,Math.PI*2);ctx.strokeStyle='#8f846970';ctx.lineWidth=.8;ctx.stroke();}
 }
 function loop(ts){
@@ -363,54 +397,94 @@ function loop(ts){
  if(!hidden&&!paused&&!$('behind').open){if(!last)last=ts;accum+=Math.min(.09,(ts-last)/1000);let n=0;while(accum>=fixedStep&&n++<4){step(fixedStep);music.update(fixedStep,{phase:lastFrameInterference,particleCount:particles.length,hover:observer.level,pan:clamp(observer.x/1.8,-1,1)});accum-=fixedStep;}}
  last=ts;draw();raf=requestAnimationFrame(loop);
 }
-function text(){const a=T[lang];document.body.dataset.lang=lang;document.documentElement.lang=lang;document.body.classList.toggle('folded',folded);
+function text(){cameraUI();const a=T[lang];document.body.dataset.lang=lang;document.documentElement.lang=lang;document.body.classList.toggle('folded',folded);
  for(const [id,key]of Object.entries({title:'title',lede:'lede',hint:'hint',notes:'notes',behindLabel:'notes',noteTitle:'title',note:'note',note2:'note2',scoreLabel:'scoreLabel',scoreNote:'scoreNote',codeLabel:'codeLabel',downloadHtml:'html',downloadCode:'code',privacy:'privacy',breeze:'breeze'}))$(id).textContent=a[key];
  $('words').textContent=folded?a.show:a.words;$('words').setAttribute('aria-pressed',String(folded));$('pause').textContent=paused?a.resume:a.pause;$('pause').setAttribute('aria-pressed',String(paused));
  $('sound').textContent=music.enabled?a.mute:(soundPending?a.waiting:a.sound);$('sound').setAttribute('aria-pressed',String(music.enabled));
  $('ko').setAttribute('aria-pressed',String(lang==='ko'));$('en').setAttribute('aria-pressed',String(lang==='en'));$('close').setAttribute('aria-label',a.close);canvas.setAttribute('aria-label',a.label);
  $('view').textContent=a.view;$('viewLabelText').textContent=a.viewLabel;$('viewReset').textContent=a.viewReset;$('view').setAttribute('aria-expanded',String(viewPanelOpen));$('viewPanel').hidden=!viewPanelOpen;$('viewValue').textContent=Math.round(viewTarget*12)+'°';
+ $('note2').textContent += lang==='ko'?' 작품만 50–400% 확대·축소할 수 있습니다. 휠은 커서 위치, 두 손가락은 두 손가락 사이를 중심으로 움직입니다. Shift+드래그, 마우스 가운데 버튼 또는 이동 모드로 둘러보고, 처음 버튼으로 확대율과 위치를 되돌립니다. 캔버스에 초점을 둔 뒤 + / − / 0 키로도 조절할 수 있습니다. 줌과 이동은 선의 흐름을 새로 만들거나 접촉 흔적을 남기지 않습니다.':' Zoom the artwork from 50–400%, anchored to the pointer or pinch midpoint. Explore with Shift-drag, the middle mouse button, or Pan mode. Reset restores zoom and position. With the canvas focused, use + / − / 0, or M for Pan. Camera gestures do not create contact marks or restart the field.';
  $('score').textContent='Fᵢ = F₀(xᵢ,t) + hoverᵢ + Σ intentᵢ + retainedᵢ\nhoverᵢ ∝ proximity × cos(φᵢ + angle + time)\nintentᵢ ∝ wavefront(age, distance) × cos(φᵢ + local_phase)\npositive phase → deeper crossing pigment · negative → weaker stroke\nresidueᵢ → slow decay after contact\nink ← ink · e^(−Δt/10) + new strokes\n\nsound = Σ paired harmonic lines with nearby frequencies\nbeating = alternating constructive / destructive superposition\nslow harmonies evolve without touch\nhover = subtle colour / stereo modulation\nclick = one long, non-percussive inclination\n\nThis is an artistic phase score, not a measured physical model.';
 }
 function soundStatus(message=''){const el=$('audioStatus');el.textContent=message;el.hidden=!message;}
 function soundActive(){music.setActive(!paused&&!hidden&&!$('behind').open);} 
 function save(name,body,type){const blob=new Blob([body],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+// Camera gestures never generate a contact in the artwork.
 function release(e){
- if(drag&&(!e||drag.id===e.pointerId)){
-  if(canvas.hasPointerCapture(drag.id))canvas.releasePointerCapture(drag.id);
-  drag=null;
+ if(!e){
+  const ids=[...touches.keys(),drag?.id,panDrag?.id].filter(id=>id!==undefined);
+  drag=null;panDrag=null;pinch=null;touches.clear();
+  for(const id of ids)if(canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);
+ }else{
+  if(drag?.id===e.pointerId)drag=null;if(panDrag?.id===e.pointerId)panDrag=null;
+  if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
  }
+ cameraUI();
 }
-canvas.addEventListener('pointerenter',e=>{if(!paused&&(e.pointerType==='mouse'||e.pointerType==='pen')){const[x,y]=local(e.clientX,e.clientY);observer.x=x;observer.y=y;observer.vx=0;observer.vy=0;observer.target=1;}});
-canvas.addEventListener('pointermove',e=>{
- const[x,y]=local(e.clientX,e.clientY);
- if(!paused&&(e.pointerType==='mouse'||e.pointerType==='pen'))observe(x,y,e.pointerType);
- if(!drag||drag.id!==e.pointerId||paused)return;
- const dx=x-drag.x,dy=y-drag.y,len=Math.hypot(dx,dy);
- if(len>.023){drag.intent.dx=mix(drag.intent.dx,dx/len,.13);drag.intent.dy=mix(drag.intent.dy,dy/len,.13);
-  const norm=Math.hypot(drag.intent.dx,drag.intent.dy)||1;
-  drag.intent.dx/=norm;drag.intent.dy/=norm;
-  // One press remains one event; gently shift its centre toward the held gesture.
-  drag.intent.x=mix(drag.intent.x,x,.075);drag.intent.y=mix(drag.intent.y,y,.075);
- }
- drag.sx=e.clientX;drag.sy=e.clientY;
-});
-canvas.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'||e.pointerType==='pen')leaveObservation();});
+function capture(e){try{canvas.setPointerCapture(e.pointerId);}catch{}}
+function touchPair(){const a=[...touches.values()].slice(0,2);if(a.length<2)return null;const r=canvas.getBoundingClientRect();return {x:(a[0].x+a[1].x)/2-r.left,y:(a[0].y+a[1].y)/2-r.top,d:Math.max(1,Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y))};}
+canvas.addEventListener('wheel',e=>{
+ e.preventDefault();const r=canvas.getBoundingClientRect();
+ const dy=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?h:1);
+ setCameraZoom(camera.zoom*Math.exp(-clamp(dy,-240,240)*.0018),e.clientX-r.left,e.clientY-r.top);
+},{passive:false});
+canvas.addEventListener('pointerenter',e=>{if(!paused&&!panMode&&!e.shiftKey&&(e.pointerType==='mouse'||e.pointerType==='pen')){const[x,y]=local(e.clientX,e.clientY);observer.x=x;observer.y=y;observer.vx=0;observer.vy=0;observer.target=1;}});
 canvas.addEventListener('pointerdown',e=>{
- if(!e.isPrimary||e.button>0||paused)return;
- const[x,y]=local(e.clientX,e.clientY);
- try{canvas.setPointerCapture(e.pointerId);}catch{}
- const m=intention(x,y);
+ if(e.pointerType==='touch'){
+  capture(e);touches.set(e.pointerId,{x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,blocked:panMode});
+  if(touches.size>=2){for(const t of touches.values())t.blocked=true;pinch=touchPair();panDrag=null;drag=null;leaveObservation();}
+  else if(panMode){panDrag={id:e.pointerId,x:e.clientX,y:e.clientY};leaveObservation();}
+  cameraUI();return;
+ }
+ if((e.button===0&&(panMode||e.shiftKey))||e.button===1){e.preventDefault();capture(e);panDrag={id:e.pointerId,x:e.clientX,y:e.clientY};leaveObservation();cameraUI();return;}
+ if(!e.isPrimary||e.button!==0||paused)return;
+ const[x,y]=local(e.clientX,e.clientY);capture(e);const m=intention(x,y);
  drag={id:e.pointerId,x,y,sx:e.clientX,sy:e.clientY,intent:m};
 });
-canvas.addEventListener('pointerup',release);
-canvas.addEventListener('pointercancel',release);
-canvas.addEventListener('lostpointercapture',()=>drag=null);
+canvas.addEventListener('pointermove',e=>{
+ const touch=touches.get(e.pointerId);
+ if(touch){
+  touch.x=e.clientX;touch.y=e.clientY;
+  if(touches.size>=2){const next=touchPair();if(pinch&&next){setCameraZoom(camera.zoom*next.d/pinch.d,pinch.x,pinch.y);camera.x+=next.x-pinch.x;camera.y+=next.y-pinch.y;boundCamera();draw();}pinch=next;return;}
+ }
+ if(panDrag?.id===e.pointerId){camera.x+=e.clientX-panDrag.x;camera.y+=e.clientY-panDrag.y;panDrag.x=e.clientX;panDrag.y=e.clientY;boundCamera();leaveObservation();draw();return;}
+ if(touch)return;
+ const[x,y]=local(e.clientX,e.clientY);
+ if(!paused&&!panMode&&!e.shiftKey&&(e.pointerType==='mouse'||e.pointerType==='pen'))observe(x,y,e.pointerType);else leaveObservation();
+ if(!drag||drag.id!==e.pointerId||paused)return;
+ const dx=x-drag.x,dy=y-drag.y,len=Math.hypot(dx,dy);
+ if(len>.023){drag.intent.dx=mix(drag.intent.dx,dx/len,.13);drag.intent.dy=mix(drag.intent.dy,dy/len,.13);const norm=Math.hypot(drag.intent.dx,drag.intent.dy)||1;drag.intent.dx/=norm;drag.intent.dy/=norm;drag.intent.x=mix(drag.intent.x,x,.075);drag.intent.y=mix(drag.intent.y,y,.075);}
+ drag.sx=e.clientX;drag.sy=e.clientY;
+});
+canvas.addEventListener('pointerleave',leaveObservation);
+function endPointer(e,cancelled=false){
+ const t=touches.get(e.pointerId);
+ if(t){
+  if(!cancelled&&!t.blocked&&!paused){const [x,y]=local(e.clientX,e.clientY);intention(x,y);}
+  touches.delete(e.pointerId);pinch=null;
+  // A remaining finger after a pinch stays blocked until it is lifted.
+  for(const other of touches.values())other.blocked=true;
+ }
+ release(e);
+}
+canvas.addEventListener('pointerup',e=>endPointer(e));
+canvas.addEventListener('pointercancel',e=>endPointer(e,true));
+canvas.addEventListener('lostpointercapture',e=>{if(touches.has(e.pointerId)||drag?.id===e.pointerId||panDrag?.id===e.pointerId)endPointer(e,true);});
 canvas.addEventListener('keydown',e=>{
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ if(['+','=','-','_','0','Home'].includes(e.key)){e.preventDefault();if(e.key==='0'||e.key==='Home')resetCamera();else setCameraZoom(camera.zoom*(e.key==='-'||e.key==='_'?1/1.25:1.25));return;}
+ if(e.key.toLowerCase()==='m'){e.preventDefault();panMode=!panMode;release();leaveObservation();cameraUI();return;}
+ if(e.key==='Escape'){release();panMode=false;cameraUI();return;}
  const dirs={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
- if(dirs[e.key]){e.preventDefault();if(!paused)intention(.2,0,...dirs[e.key]);}
+ if(dirs[e.key]){e.preventDefault();if(panMode||e.shiftKey){camera.x-=dirs[e.key][0]*40;camera.y-=dirs[e.key][1]*40;boundCamera();leaveObservation();draw();}else if(!paused)intention(.2,0,...dirs[e.key]);}
  if(e.key==='Enter'){e.preventDefault();if(!paused)intention(.2,0);}
  if(e.code==='Space'){e.preventDefault();paused=!paused;release();leaveObservation();soundActive();text();}
 });
+window.addEventListener('blur',()=>{release();leaveObservation();});
+$('zoomIn').onclick=()=>setCameraZoom(camera.zoom*1.25);
+$('zoomOut').onclick=()=>setCameraZoom(camera.zoom/1.25);
+$('zoomReset').onclick=resetCamera;
+$('panMode').onclick=()=>{panMode=!panMode;release();leaveObservation();cameraUI();};
 // Musical default: try immediately where autoplay is allowed. Where it isn't,
 // keep the request pending until the FIRST trusted user activation; never fake playback.
 function startWantedSound(){
@@ -449,7 +523,7 @@ $('viewReset').onclick=()=>{viewTarget=0;$('viewRange').value='0';$('viewValue')
 $('words').onclick=()=>{folded=!folded;text()};$('pause').onclick=()=>{paused=!paused;release();leaveObservation();last=0;accum=0;soundActive();text()};$('breeze').onclick=()=>{if(!paused)breeze(true)};
 $('notes').onclick=()=>{release();leaveObservation();$('behind').showModal();soundActive()};$('close').onclick=()=>$('behind').close();$('behind').addEventListener('close',()=>{last=0;accum=0;soundActive()});
 $('ko').onclick=()=>{lang='ko';text()};$('en').onclick=()=>{lang='en';text()};
-$('downloadHtml').onclick=()=>save('ruafield_elsewhere_slowly_03a3_default_music_view.html',originalHTML,'text/html;charset=utf-8');$('downloadCode').onclick=()=>save('ruafield_elsewhere_slowly_03a2_music.js',originalCode,'text/javascript;charset=utf-8');
+$('downloadHtml').onclick=()=>save('RuaField_03a4_zoom.html',originalHTML,'text/html;charset=utf-8');$('downloadCode').onclick=()=>save('RuaField_03a4_runtime.js',originalCode,'text/javascript;charset=utf-8');
 window.addEventListener('resize',resize,{passive:true});document.addEventListener('visibilitychange',()=>{hidden=document.hidden;last=0;accum=0;release();leaveObservation();soundActive();});window.addEventListener('pagehide',()=>{cancelAnimationFrame(raf);music.destroy();});window.addEventListener('pageshow',e=>{if(e.persisted){last=0;raf=requestAnimationFrame(loop)}});
 reduced.addEventListener('change',e=>{if(e.matches){paused=true;release();leaveObservation();soundActive();text()}});
 resize();text();$('source').textContent=originalCode;
@@ -460,7 +534,7 @@ for(let i=0;i<210;i++)step(fixedStep);draw();raf=requestAnimationFrame(loop);
 startWantedSound();
 setTimeout(()=>{if(audioWanted&&!music.enabled&&!audioFatal){audioAutoplayBlocked=true;soundStatus(T[lang].soundBlocked);text();}},500);
 
-window.__ruafield03=()=>({draft:'03a3',time,frames:frame,particles:particles.length,marks:marks.length,intentions:intentions.length,intentionCount,hoverVisits,hoverStrength:+observer.level.toFixed(3),phase: {...lastFrameInterference},gestures:totalGestures,paused,lang,folded,resolution:[canvas.width,canvas.height],network:false,audio:music.state(),audioWanted,audioPending:!!soundPending,viewAngle,viewTarget});
+window.__ruafield03=()=>({draft:'03a4',camera:{...camera},panMode,panning:!!panDrag,pinch:!!pinch,touchCount:touches.size,observer:{x:observer.x,y:observer.y,target:observer.target},latestIntention:intentions.length?{...intentions[intentions.length-1]}:null,time,frames:frame,particles:particles.length,marks:marks.length,intentions:intentions.length,intentionCount,hoverVisits,hoverStrength:+observer.level.toFixed(3),phase: {...lastFrameInterference},gestures:totalGestures,paused,lang,folded,resolution:[canvas.width,canvas.height],network:false,audio:music.state(),audioWanted,audioPending:!!soundPending,viewAngle,viewTarget});
 })();
 </script>
 </body></html>
